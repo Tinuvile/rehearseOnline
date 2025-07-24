@@ -1,0 +1,36 @@
+# 后端框架
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# 数据处理
+pydantic==2.5.0
+python-dotenv==1.0.0
+
+# AI和视频处理
+opencv-python==4.8.1.78
+mediapipe==0.10.7
+funasr==1.0.25
+modelscope==1.9.5
+numpy==1.24.3
+scipy==1.11.3
+
+# 音频处理
+librosa==0.10.1
+soundfile==0.12.1
+
+# 工具库
+pillow==10.1.0
+moviepy==1.0.3
+
+# AI模型
+torch==2.1.0
+torchaudio==2.1.0
+transformers==4.35.2
+
+# 网络请求和工具
+requests==2.31.0
+aiofiles==23.2.1
+
+# 数据库相关
+sqlalchemy==2.0.23
