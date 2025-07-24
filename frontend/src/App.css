@@ -1,18 +1,318 @@
+/* AI Stage Planner - 全局样式 */
 .App {
+  text-align: left;
+  background-color: #0a0a0a;
+  color: #f5f5f5;
   min-height: 100vh;
-  background: #f5f5f5;
+  height: auto;
+  overflow: visible;
 }
 
-/* 基础样式 */
+/* 重置默认样式 */
 * {
   box-sizing: border-box;
 }
 
+html,
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  padding: 0;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #0a0a0a;
+  color: #f5f5f5;
+}
+
+#root {
+  height: auto;
+  min-height: 100vh;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+/* Antd 组件深色主题重写 */
+.ant-layout {
+  background-color: #0a0a0a !important;
+  height: auto !important;
+  min-height: 100vh !important;
+}
+
+.ant-layout-header {
+  background-color: #151515 !important;
+  border-bottom: 1px solid #2a2a2a;
+}
+
+.ant-layout-sider {
+  background-color: #151515 !important;
+}
+
+.ant-layout-content {
+  background-color: #0a0a0a !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.ant-card {
+  background-color: #151515 !important;
+  border: 1px solid #2a2a2a !important;
+  color: #f5f5f5 !important;
+}
+
+.ant-card-body {
+  color: #f5f5f5 !important;
+}
+
+.ant-input {
+  background-color: #151515 !important;
+  border-color: #2a2a2a !important;
+  color: #f5f5f5 !important;
+}
+
+.ant-input:hover,
+.ant-input:focus {
+  border-color: #a8c090 !important;
+  box-shadow: 0 0 0 2px rgba(168, 192, 144, 0.2) !important;
+}
+
+.ant-input::placeholder {
+  color: #909090 !important;
+}
+
+.ant-select {
+  background-color: #151515 !important;
+}
+
+.ant-select .ant-select-selector {
+  background-color: #151515 !important;
+  border-color: #2a2a2a !important;
+  color: #f5f5f5 !important;
+}
+
+.ant-select-dropdown {
+  background-color: #151515 !important;
+  border: 1px solid #2a2a2a !important;
+}
+
+.ant-select-item {
+  color: #f5f5f5 !important;
+}
+
+.ant-select-item:hover {
+  background-color: #2a2a2a !important;
+}
+
+.ant-select-item-option-selected {
+  background-color: #a8c090 !important;
+  color: #1a1a1a !important;
+}
+
+.ant-btn {
+  background-color: #151515;
+  border-color: #2a2a2a;
+  color: #f5f5f5;
+}
+
+.ant-btn:hover {
+  background-color: #1f1f1f !important;
+  border-color: #a8c090 !important;
+  color: #a8c090 !important;
+}
+
+.ant-btn-primary {
+  background-color: #a8c090 !important;
+  border-color: #a8c090 !important;
+  color: #1a1a1a !important;
+}
+
+.ant-btn-primary:hover {
+  background-color: #9bb080 !important;
+  border-color: #9bb080 !important;
+  color: #1a1a1a !important;
+}
+
+.ant-progress-bg {
+  background-color: #a8c090 !important;
+}
+
+.ant-upload-dragger {
+  background-color: transparent !important;
+  border: 1px dashed #2a2a2a !important;
+}
+
+.ant-upload-dragger:hover {
+  border-color: #a8c090 !important;
+}
+
+.ant-upload-dragger .ant-upload-text {
+  color: #f5f5f5 !important;
+}
+
+.ant-upload-dragger .ant-upload-hint {
+  color: #c0c0c0 !important;
+}
+
+.ant-pagination-item {
+  background-color: #151515 !important;
+  border-color: #2a2a2a !important;
+}
+
+.ant-pagination-item a {
+  color: #f5f5f5 !important;
+}
+
+.ant-pagination-item:hover {
+  border-color: #a8c090 !important;
+}
+
+.ant-pagination-item:hover a {
+  color: #a8c090 !important;
+}
+
+.ant-pagination-item-active {
+  background-color: #a8c090 !important;
+  border-color: #a8c090 !important;
+}
+
+.ant-pagination-item-active a {
+  color: #1a1a1a !important;
+}
+
+.ant-pagination-prev,
+.ant-pagination-next {
+  background-color: #151515 !important;
+  border-color: #2a2a2a !important;
+}
+
+.ant-pagination-prev:hover,
+.ant-pagination-next:hover {
+  border-color: #a8c090 !important;
+}
+
+.ant-pagination-prev .ant-pagination-item-link,
+.ant-pagination-next .ant-pagination-item-link {
+  color: #f5f5f5 !important;
+}
+
+.ant-pagination-prev:hover .ant-pagination-item-link,
+.ant-pagination-next:hover .ant-pagination-item-link {
+  color: #a8c090 !important;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #151515;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8c090;
+}
+
+/* 舞台编辑器特定样式 */
+.stage-canvas {
+  position: relative;
+  overflow: hidden;
+}
+
+.stage-actor {
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.stage-actor:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.stage-actor.selected {
+  box-shadow: 0 0 0 2px #a8c090;
+}
+
+.timeline-segment {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.timeline-segment:hover {
+  opacity: 0.8;
+  transform: translateY(-1px);
+}
+
+.ai-suggestion-card {
+  transition: all 0.2s ease;
+}
+
+.ai-suggestion-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(168, 192, 144, 0.15);
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .ant-layout-sider {
+    width: 200px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .ant-layout-sider {
+    position: fixed !important;
+    z-index: 100;
+    height: 100vh;
+    left: -240px;
+    transition: left 0.3s ease;
+  }
+
+  .ant-layout-sider.ant-layout-sider-collapsed {
+    left: 0;
+  }
+
+  .ant-layout-content {
+    margin-left: 0 !important;
+  }
+}
+
+/* 加载动画 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* 工具提示样式 */
+.ant-tooltip-inner {
+  background-color: #1f1f1f !important;
+  color: #f5f5f5 !important;
+  border: 1px solid #2a2a2a !important;
+}
+
+.ant-tooltip-arrow::before {
+  background-color: #1f1f1f !important;
+  border: 1px solid #2a2a2a !important;
 }
