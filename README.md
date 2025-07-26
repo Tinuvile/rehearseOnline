@@ -1,4 +1,4 @@
-# AI 舞台系统
+# rehearseOnline 舞台系统
 
 一个面向导演和演员的智能舞台管理平台，通过 AI 分析视频提取演员位置、台词和情感，提供智能化的走位建议、灯光方案和音乐切换点推荐。
 
@@ -157,42 +157,21 @@ python test_system.py
 - FastAPI - Web 框架
 - OpenCV + MediaPipe - 视频处理和姿态估计
 - FunASR - 高精度中文语音识别
-- Transformers - 情感分析
 
 **前端:**
 
 - React 18 + TypeScript
 - Ant Design - UI 组件库
-- Three.js - 3D 渲染
 - Canvas API - 2D 绘图
 
 ## 开发状态
 
 这是一个黑客松 MVP 版本，专注于核心功能的快速实现：
 
-- ✅ 项目基础架构
-- ✅ 数据模型和存储
-- ✅ 视频上传和处理 API
-- ✅ 前端四面板布局
-- ✅ 时间轴组件
-- 🔄 视频分析功能（进行中）
-- 🔄 AI 推荐算法（进行中）
-- ⏳ 3D 预览功能（计划中）
-
-## 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
-## 许可证
-
-MIT License
-
-## 致谢
-
-感谢所有开源项目的贡献者，特别是：
-
-- FastAPI
-- React
-- MediaPipe
-- Ant Design
-- Three.js
+- 项目基础架构
+- 数据模型和存储
+- 视频上传和处理 API
+- 前端四面板布局
+- 时间轴组件
+- 视频分析功能（进行中）
+- 3D 预览功能（计划中）
