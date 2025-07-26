@@ -9,9 +9,6 @@ import ProjectWorkspace from "./pages/ProjectWorkspace";
 import VideoAnalysis from "./pages/VideoAnalysis";
 import StageEditor from "./pages/StageEditor";
 import ResourceLibrary from "./pages/ResourceLibrary";
-import TeamManagement from "./pages/TeamManagement";
-import DataAnalytics from "./pages/DataAnalytics";
-import HelpCenter from "./pages/HelpCenter";
 
 const App: React.FC = () => {
   return (
@@ -19,11 +16,51 @@ const App: React.FC = () => {
       theme={{
         algorithm: theme.darkAlgorithm,
         token: {
-          colorPrimary: "#a8c090",
-          colorBgBase: "#0a0a0a",
-          colorTextBase: "#f5f5f5",
-          colorBorder: "#2a2a2a",
-          colorBgContainer: "#151515",
+          // Catppuccin Frappe colors
+          colorPrimary: "#8caaee", // Blue
+          colorSuccess: "#a6d189", // Green
+          colorWarning: "#e5c890", // Yellow
+          colorError: "#e78284", // Red
+          colorInfo: "#81c8be", // Teal
+          colorBgBase: "#303446", // Base
+          colorBgContainer: "#414559", // Surface0
+          colorBgElevated: "#51576d", // Surface1
+          colorBorder: "#626880", // Surface2
+          colorBorderSecondary: "#737994", // Overlay0
+          colorText: "#c6d0f5", // Text
+          colorTextSecondary: "#b5bfe2", // Subtext1
+          colorTextTertiary: "#a5adce", // Subtext0
+          colorTextQuaternary: "#949cbb", // Overlay2
+          colorFill: "#414559", // Surface0
+          colorFillSecondary: "#51576d", // Surface1
+          colorFillTertiary: "#626880", // Surface2
+          colorFillQuaternary: "#737994", // Overlay0
+          borderRadius: 12,
+          borderRadiusLG: 16,
+          borderRadiusSM: 8,
+          borderRadiusXS: 6,
+        },
+        components: {
+          Button: {
+            borderRadius: 8,
+            controlHeight: 40,
+            fontSize: 14,
+            fontWeight: 500,
+          },
+          Card: {
+            borderRadius: 12,
+            paddingLG: 24,
+          },
+          Input: {
+            borderRadius: 8,
+            controlHeight: 40,
+            fontSize: 14,
+          },
+          Select: {
+            borderRadius: 8,
+            controlHeight: 40,
+            fontSize: 14,
+          },
         },
       }}
     >
@@ -46,15 +83,6 @@ const App: React.FC = () => {
 
             {/* 资源库 */}
             <Route path="/resources" element={<ResourceLibrary />} />
-
-            {/* 团队管理 */}
-            <Route path="/team" element={<TeamManagement />} />
-
-            {/* 数据分析 */}
-            <Route path="/analytics" element={<DataAnalytics />} />
-
-            {/* 帮助中心 */}
-            <Route path="/help" element={<HelpCenter />} />
 
             {/* 404 重定向到首页 */}
             <Route path="*" element={<HomePage />} />

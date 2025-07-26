@@ -43,7 +43,7 @@ const Header: React.FC = () => {
       {/* 左侧：标题和项目信息 */}
       <Space size="large">
         <Title level={3} style={{ margin: 0, color: '#1890ff' }}>
-          🎭 AI舞台系统
+          🎭 rehearseOnline
         </Title>
         
         {state.currentProject && (

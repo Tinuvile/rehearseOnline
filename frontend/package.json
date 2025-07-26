@@ -1,7 +1,7 @@
 {
-  "name": "ai-stage-system-frontend",
+  "name": "rehearse-online-frontend",
   "version": "1.0.0",
-  "description": "AI舞台系统前端应用",
+  "description": "rehearseOnline 在线排练系统前端应用",
   "private": true,
   "dependencies": {
     "@ant-design/icons": "^5.2.0",
@@ -13,6 +13,7 @@
     "axios": "^1.6.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-resizable": "^3.0.5",
     "react-router-dom": "^6.20.1",
     "react-scripts": "^5.0.1",
     "three": "^0.158.0",
@@ -42,5 +43,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@types/react-resizable": "^3.0.8"
   }
 }

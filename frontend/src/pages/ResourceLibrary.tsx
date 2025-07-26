@@ -28,7 +28,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import StageHeader from "../components/Layout/StageHeader";
 
-const { Content, Sider } = Layout;
+const { Content } = Layout;
 const { Meta } = Card;
 const { Dragger } = Upload;
 
@@ -177,143 +177,125 @@ const ResourceLibrary: React.FC = () => {
 
   return (
     <Layout
-      style={{ minHeight: "100vh", height: "auto", background: "#0a0a0a" }}
+      style={{ minHeight: "100vh", height: "auto", background: "#303446" }}
     >
       <StageHeader />
 
-      <Layout>
-        {/* 左侧分类栏 */}
-        <Sider width={240} style={{ background: "#151515" }}>
-          <div style={{ padding: 24 }}>
-            <h3
+      {/* 主内容区 */}
+      <Content style={{ background: "#303446", padding: "48px 64px" }}>
+          {/* 页面标题 */}
+          <div style={{ marginBottom: 48 }}>
+            <div
               style={{
-                fontSize: 14,
-                fontWeight: 500,
-                color: "#f5f5f5",
-                marginBottom: 16,
-                margin: "0 0 16px 0",
+                marginBottom: 32,
               }}
             >
-              资源分类
-            </h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <h2
+                style={{
+                  fontSize: 36,
+                  fontWeight: 700,
+                  color: "#c6d0f5",
+                  margin: "0 0 8px 0",
+                }}
+              >
+                资源库
+              </h2>
+              <p
+                style={{
+                  fontSize: 16,
+                  color: "#a5adce",
+                  margin: 0,
+                }}
+              >
+                管理您的舞台设计资源和素材
+              </p>
+            </div>
+
+            {/* 分类筛选 */}
+            <div style={{ display: "flex", gap: 12, marginBottom: 32, flexWrap: "wrap", alignItems: "center" }}>
               {categories.map((category) => (
                 <Button
                   key={category.key}
+                  size="large"
                   style={{
                     background:
                       selectedCategory === category.key
-                        ? "#1f1f1f"
-                        : "transparent",
+                        ? "#8caaee"
+                        : "#414559",
                     color:
-                      selectedCategory === category.key ? "#a8c090" : "#c0c0c0",
-                    border:
-                      selectedCategory === category.key
-                        ? "1px solid #a8c090"
-                        : "1px solid #2a2a2a",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "8px 12px",
-                    fontSize: 12,
+                      selectedCategory === category.key ? "#303446" : "#c6d0f5",
+                    border: "none",
+                    fontSize: 14,
+                    fontWeight: 500,
                     height: "auto",
+                    padding: "12px 20px",
+                    borderRadius: "12px",
+                    boxShadow: selectedCategory === category.key 
+                      ? "0 4px 12px rgba(140, 170, 238, 0.3)" 
+                      : "none",
                   }}
                   onClick={() => setSelectedCategory(category.key)}
                 >
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <span style={{ marginRight: 8 }}>{category.icon}</span>
-                    {category.label}
-                  </div>
-                  <span
-                    style={{
-                      background: "#2a2a2a",
-                      color: "#c0c0c0",
-                      padding: "2px 6px",
-                      borderRadius: "10px",
-                      fontSize: 10,
-                    }}
-                  >
-                    {category.count}
-                  </span>
+                  <span style={{ marginRight: 8, fontSize: 16 }}>{category.icon}</span>
+                  {category.label} ({category.count})
                 </Button>
               ))}
-            </div>
-
-            <div style={{ marginTop: 24 }}>
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
+                size="large"
                 style={{
-                  background: "#a8c090",
-                  borderColor: "#a8c090",
-                  color: "#1a1a1a",
-                  width: "100%",
-                  fontSize: 12,
+                  background: "linear-gradient(135deg, #a6d189, #81c8be)",
+                  border: "none",
+                  color: "#303446",
+                  fontSize: 14,
+                  fontWeight: 600,
                   height: "auto",
-                  padding: "12px",
+                  padding: "12px 20px",
+                  marginLeft: "auto",
+                  borderRadius: "12px",
+                  boxShadow: "0 4px 12px rgba(166, 209, 137, 0.3)",
                 }}
                 onClick={() => setUploadModalVisible(true)}
               >
                 上传资源
               </Button>
             </div>
-          </div>
-        </Sider>
-
-        {/* 主内容区 */}
-        <Content style={{ background: "#0a0a0a", padding: "48px" }}>
-          {/* 页面标题和搜索 */}
-          <div style={{ marginBottom: 32 }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 24,
-              }}
-            >
-              <h2
-                style={{
-                  fontSize: 30,
-                  fontWeight: 500,
-                  color: "#f5f5f5",
-                  margin: 0,
-                }}
-              >
-                资源库
-              </h2>
-            </div>
 
             {/* 搜索和筛选 */}
-            <div style={{ display: "flex", gap: 16, marginBottom: 24 }}>
+            <div style={{ display: "flex", gap: 16, marginBottom: 32 }}>
               <div style={{ flex: 1, position: "relative" }}>
                 <SearchOutlined
                   style={{
                     position: "absolute",
-                    left: 12,
+                    left: 16,
                     top: "50%",
                     transform: "translateY(-50%)",
-                    color: "#909090",
-                    fontSize: 12,
+                    color: "#a5adce",
+                    fontSize: 16,
                   }}
                 />
                 <Input
                   placeholder="搜索资源..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  size="large"
                   style={{
-                    background: "#151515",
-                    border: "1px solid #2a2a2a",
-                    color: "#f5f5f5",
-                    paddingLeft: 40,
-                    fontSize: 14,
+                    background: "#414559",
+                    border: "1px solid #626880",
+                    color: "#c6d0f5",
+                    paddingLeft: 48,
+                    fontSize: 15,
+                    borderRadius: "12px",
+                    height: "48px",
                   }}
                 />
               </div>
               <Select
                 value={selectedType}
                 onChange={setSelectedType}
-                style={{ width: 150 }}
+                size="large"
+                style={{ width: 160 }}
               >
                 <Select.Option value="all">全部类型</Select.Option>
                 <Select.Option value="image">图片</Select.Option>
@@ -331,13 +313,18 @@ const ResourceLibrary: React.FC = () => {
               <Col span={6} key={resource.id} style={{ marginBottom: 24 }}>
                 <Card
                   hoverable
-                  style={{ background: "#151515", border: "1px solid #2a2a2a" }}
+                  style={{ 
+                    background: "#414559", 
+                    border: "none",
+                    borderRadius: "12px",
+                    boxShadow: "0 4px 16px rgba(0, 0, 0, 0.08)",
+                  }}
                   cover={
                     <div
                       style={{
                         position: "relative",
                         height: 160,
-                        background: "#1f1f1f",
+                        background: "#51576d",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -426,8 +413,8 @@ const ResourceLibrary: React.FC = () => {
                             <Tag
                               key={tag}
                               style={{
-                                background: "#2a2a2a",
-                                color: "#c0c0c0",
+                                background: "#626880",
+                                color: "#c6d0f5",
                                 border: "none",
                                 fontSize: 10,
                                 margin: "2px 4px 2px 0",
@@ -458,7 +445,7 @@ const ResourceLibrary: React.FC = () => {
               multiple
               style={{
                 background: "transparent",
-                border: "1px dashed #2a2a2a",
+                border: "1px dashed #626880",
               }}
             >
               <p className="ant-upload-drag-icon">
@@ -474,8 +461,7 @@ const ResourceLibrary: React.FC = () => {
               </p>
             </Dragger>
           </Modal>
-        </Content>
-      </Layout>
+      </Content>
     </Layout>
   );
 };

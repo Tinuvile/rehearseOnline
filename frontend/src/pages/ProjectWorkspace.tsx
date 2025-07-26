@@ -16,12 +16,6 @@ import { useNavigate } from "react-router-dom";
 import {
   PlusOutlined,
   SearchOutlined,
-  HomeOutlined,
-  ProjectOutlined,
-  FolderOutlined,
-  TeamOutlined,
-  LineChartOutlined,
-  QuestionCircleOutlined,
   FolderOpenOutlined,
   LoadingOutlined,
   CheckCircleOutlined,
@@ -32,7 +26,7 @@ import {
 } from "@ant-design/icons";
 import StageHeader from "../components/Layout/StageHeader";
 
-const { Sider, Content } = Layout;
+const { Content } = Layout;
 
 interface Project {
   id: string;
@@ -71,114 +65,59 @@ const ProjectWorkspace: React.FC = () => {
     archived: 1,
   };
 
-  const sidebarItems = [
-    { key: "home", icon: <HomeOutlined />, label: "首页", active: false },
-    {
-      key: "workspace",
-      icon: <ProjectOutlined />,
-      label: "项目工作台",
-      active: true,
-    },
-    {
-      key: "resources",
-      icon: <FolderOutlined />,
-      label: "资源库",
-      active: false,
-    },
-    { key: "team", icon: <TeamOutlined />, label: "团队管理", active: false },
-    {
-      key: "analytics",
-      icon: <LineChartOutlined />,
-      label: "数据分析",
-      active: false,
-    },
-    {
-      key: "help",
-      icon: <QuestionCircleOutlined />,
-      label: "帮助中心",
-      active: false,
-    },
-  ];
-
   return (
     <Layout
-      style={{ minHeight: "100vh", height: "auto", background: "#0a0a0a" }}
+      style={{ minHeight: "100vh", height: "auto", background: "#303446" }}
     >
       <StageHeader />
 
-      <Layout>
-        {/* 左侧导航栏 */}
-        <Sider width={240} style={{ background: "#151515" }}>
-          <div style={{ padding: 24 }}>
-            <nav>
-              <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
-                {sidebarItems.map((item) => (
-                  <li key={item.key} style={{ marginBottom: 16 }}>
-                    <button
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        color: item.active ? "#a8c090" : "#c0c0c0",
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                        fontSize: 14,
-                        padding: 0,
-                        width: "100%",
-                        textAlign: "left",
-                      }}
-                      onClick={() => console.log(`Navigate to ${item.key}`)}
-                    >
-                      <span
-                        style={{
-                          marginRight: 12,
-                          width: 20,
-                          textAlign: "center",
-                        }}
-                      >
-                        {item.icon}
-                      </span>
-                      {item.label}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          </div>
-        </Sider>
-
-        {/* 主内容区 */}
-        <Content style={{ background: "#0a0a0a", padding: "48px" }}>
+      {/* 主内容区 */}
+      <Content style={{ background: "#303446", padding: "48px 64px" }}>
           {/* 页面标题和新建按钮 */}
-          <div style={{ marginBottom: 32 }}>
+          <div style={{ marginBottom: 48 }}>
             <div
               style={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                marginBottom: 24,
+                marginBottom: 32,
               }}
             >
-              <h2
-                style={{
-                  fontSize: 30,
-                  fontWeight: 500,
-                  color: "#f5f5f5",
-                  margin: 0,
-                }}
-              >
-                项目工作台
-              </h2>
+              <div>
+                <h2
+                  style={{
+                    fontSize: 36,
+                    fontWeight: 700,
+                    color: "#c6d0f5",
+                    margin: "0 0 8px 0",
+                  }}
+                >
+                  项目工作台
+                </h2>
+                <p
+                  style={{
+                    fontSize: 16,
+                    color: "#a5adce",
+                    margin: 0,
+                  }}
+                >
+                  管理和组织您的所有排练项目
+                </p>
+              </div>
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
+                size="large"
                 style={{
-                  background: "#a8c090",
-                  borderColor: "#a8c090",
-                  color: "#1a1a1a",
-                  fontSize: 14,
-                  height: "auto",
-                  padding: "12px 24px",
+                  background: "linear-gradient(135deg, #a6d189, #81c8be)",
+                  border: "none",
+                  color: "#303446",
+                  fontSize: 15,
+                  fontWeight: 600,
+                  height: "48px",
+                  padding: "0 24px",
+                  borderRadius: "12px",
+                  boxShadow: "0 4px 12px rgba(166, 209, 137, 0.3)",
                 }}
                 onClick={() => setCreateModalVisible(true)}
               >
@@ -187,35 +126,41 @@ const ProjectWorkspace: React.FC = () => {
             </div>
 
             {/* 搜索和筛选 */}
-            <div style={{ display: "flex", gap: 16, marginBottom: 24 }}>
+            <div style={{ display: "flex", gap: 16, marginBottom: 32 }}>
               <div style={{ flex: 1, position: "relative" }}>
                 <SearchOutlined
                   style={{
                     position: "absolute",
-                    left: 12,
+                    left: 16,
                     top: "50%",
                     transform: "translateY(-50%)",
-                    color: "#909090",
-                    fontSize: 12,
+                    color: "#a5adce",
+                    fontSize: 16,
                   }}
                 />
                 <Input
                   placeholder="搜索项目..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
+                  size="large"
                   style={{
-                    background: "#151515",
-                    border: "1px solid #2a2a2a",
-                    color: "#f5f5f5",
-                    paddingLeft: 40,
-                    fontSize: 14,
+                    background: "#414559",
+                    border: "1px solid #626880",
+                    color: "#c6d0f5",
+                    paddingLeft: 48,
+                    fontSize: 15,
+                    borderRadius: "12px",
+                    height: "48px",
                   }}
                 />
               </div>
               <Select
                 value={statusFilter}
                 onChange={setStatusFilter}
-                style={{ width: 150 }}
+                size="large"
+                style={{ 
+                  width: 160,
+                }}
               >
                 <Select.Option value="all">全部状态</Select.Option>
                 <Select.Option value="active">进行中</Select.Option>
@@ -225,7 +170,8 @@ const ProjectWorkspace: React.FC = () => {
               <Select
                 value={sortBy}
                 onChange={setSortBy}
-                style={{ width: 150 }}
+                size="large"
+                style={{ width: 160 }}
               >
                 <Select.Option value="createDate">创建日期 ▼</Select.Option>
                 <Select.Option value="modifyDate">修改日期 ▼</Select.Option>
@@ -235,9 +181,18 @@ const ProjectWorkspace: React.FC = () => {
           </div>
 
           {/* 统计卡片 */}
-          <Row gutter={24} style={{ marginBottom: 32 }}>
+          <Row gutter={[24, 24]} style={{ marginBottom: 48 }}>
             <Col span={6}>
-              <Card style={{ background: "#151515", border: "none" }}>
+              <Card 
+                style={{ 
+                  background: "#414559", 
+                  border: "none",
+                  borderRadius: "16px",
+                  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
+                }}
+                bodyStyle={{ padding: "24px" }}
+                hoverable
+              >
                 <div
                   style={{
                     display: "flex",
@@ -246,29 +201,30 @@ const ProjectWorkspace: React.FC = () => {
                     marginBottom: 16,
                   }}
                 >
-                  <h3 style={{ color: "#c0c0c0", fontSize: 14, margin: 0 }}>
+                  <h3 style={{ color: "#a5adce", fontSize: 14, margin: 0, fontWeight: 500 }}>
                     项目总数
                   </h3>
                   <div
                     style={{
-                      width: 40,
-                      height: 40,
-                      background: "#1f1f1f",
+                      width: 48,
+                      height: 48,
+                      background: "linear-gradient(135deg, #8caaee, #ca9ee6)",
+                      borderRadius: "12px",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                     }}
                   >
                     <FolderOpenOutlined
-                      style={{ fontSize: 18, color: "#a8c090" }}
+                      style={{ fontSize: 20, color: "#303446" }}
                     />
                   </div>
                 </div>
                 <p
                   style={{
-                    fontSize: 30,
-                    fontWeight: 500,
-                    color: "#f5f5f5",
+                    fontSize: 32,
+                    fontWeight: 700,
+                    color: "#c6d0f5",
                     margin: 0,
                   }}
                 >
@@ -277,7 +233,16 @@ const ProjectWorkspace: React.FC = () => {
               </Card>
             </Col>
             <Col span={6}>
-              <Card style={{ background: "#151515", border: "none" }}>
+              <Card 
+                style={{ 
+                  background: "#414559", 
+                  border: "none",
+                  borderRadius: "16px",
+                  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
+                }}
+                bodyStyle={{ padding: "24px" }}
+                hoverable
+              >
                 <div
                   style={{
                     display: "flex",
@@ -286,29 +251,30 @@ const ProjectWorkspace: React.FC = () => {
                     marginBottom: 16,
                   }}
                 >
-                  <h3 style={{ color: "#c0c0c0", fontSize: 14, margin: 0 }}>
+                  <h3 style={{ color: "#a5adce", fontSize: 14, margin: 0, fontWeight: 500 }}>
                     进行中项目
                   </h3>
                   <div
                     style={{
-                      width: 40,
-                      height: 40,
-                      background: "#1f1f1f",
+                      width: 48,
+                      height: 48,
+                      background: "linear-gradient(135deg, #e5c890, #ef9f76)",
+                      borderRadius: "12px",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                     }}
                   >
                     <LoadingOutlined
-                      style={{ fontSize: 18, color: "#a8c090" }}
+                      style={{ fontSize: 20, color: "#303446" }}
                     />
                   </div>
                 </div>
                 <p
                   style={{
-                    fontSize: 30,
-                    fontWeight: 500,
-                    color: "#f5f5f5",
+                    fontSize: 32,
+                    fontWeight: 700,
+                    color: "#c6d0f5",
                     margin: 0,
                   }}
                 >
@@ -317,7 +283,16 @@ const ProjectWorkspace: React.FC = () => {
               </Card>
             </Col>
             <Col span={6}>
-              <Card style={{ background: "#151515", border: "none" }}>
+              <Card 
+                style={{ 
+                  background: "#414559", 
+                  border: "none",
+                  borderRadius: "16px",
+                  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
+                }}
+                bodyStyle={{ padding: "24px" }}
+                hoverable
+              >
                 <div
                   style={{
                     display: "flex",
@@ -326,29 +301,30 @@ const ProjectWorkspace: React.FC = () => {
                     marginBottom: 16,
                   }}
                 >
-                  <h3 style={{ color: "#c0c0c0", fontSize: 14, margin: 0 }}>
+                  <h3 style={{ color: "#a5adce", fontSize: 14, margin: 0, fontWeight: 500 }}>
                     已完成项目
                   </h3>
                   <div
                     style={{
-                      width: 40,
-                      height: 40,
-                      background: "#1f1f1f",
+                      width: 48,
+                      height: 48,
+                      background: "linear-gradient(135deg, #a6d189, #81c8be)",
+                      borderRadius: "12px",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                     }}
                   >
                     <CheckCircleOutlined
-                      style={{ fontSize: 18, color: "#a8c090" }}
+                      style={{ fontSize: 20, color: "#303446" }}
                     />
                   </div>
                 </div>
                 <p
                   style={{
-                    fontSize: 30,
-                    fontWeight: 500,
-                    color: "#f5f5f5",
+                    fontSize: 32,
+                    fontWeight: 700,
+                    color: "#c6d0f5",
                     margin: 0,
                   }}
                 >
@@ -357,7 +333,16 @@ const ProjectWorkspace: React.FC = () => {
               </Card>
             </Col>
             <Col span={6}>
-              <Card style={{ background: "#151515", border: "none" }}>
+              <Card 
+                style={{ 
+                  background: "#414559", 
+                  border: "none",
+                  borderRadius: "16px",
+                  boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
+                }}
+                bodyStyle={{ padding: "24px" }}
+                hoverable
+              >
                 <div
                   style={{
                     display: "flex",
@@ -366,27 +351,28 @@ const ProjectWorkspace: React.FC = () => {
                     marginBottom: 16,
                   }}
                 >
-                  <h3 style={{ color: "#c0c0c0", fontSize: 14, margin: 0 }}>
+                  <h3 style={{ color: "#a5adce", fontSize: 14, margin: 0, fontWeight: 500 }}>
                     已归档项目
                   </h3>
                   <div
                     style={{
-                      width: 40,
-                      height: 40,
-                      background: "#1f1f1f",
+                      width: 48,
+                      height: 48,
+                      background: "linear-gradient(135deg, #f4b8e4, #ca9ee6)",
+                      borderRadius: "12px",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                     }}
                   >
-                    <InboxOutlined style={{ fontSize: 18, color: "#a8c090" }} />
+                    <InboxOutlined style={{ fontSize: 20, color: "#303446" }} />
                   </div>
                 </div>
                 <p
                   style={{
-                    fontSize: 30,
-                    fontWeight: 500,
-                    color: "#f5f5f5",
+                    fontSize: 32,
+                    fontWeight: 700,
+                    color: "#c6d0f5",
                     margin: 0,
                   }}
                 >
@@ -397,20 +383,20 @@ const ProjectWorkspace: React.FC = () => {
           </Row>
 
           {/* 项目列表 */}
-          <div style={{ marginBottom: 24 }}>
+          <div style={{ marginBottom: 32 }}>
             <div
               style={{
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                marginBottom: 16,
+                marginBottom: 24,
               }}
             >
               <h3
                 style={{
-                  fontSize: 20,
-                  fontWeight: 500,
-                  color: "#f5f5f5",
+                  fontSize: 24,
+                  fontWeight: 600,
+                  color: "#c6d0f5",
                   margin: 0,
                 }}
               >
@@ -422,9 +408,10 @@ const ProjectWorkspace: React.FC = () => {
                   icon={<AppstoreOutlined />}
                   onClick={() => setViewMode("grid")}
                   style={{
-                    background: viewMode === "grid" ? "#151515" : "#151515",
-                    borderColor: "#2a2a2a",
-                    color: viewMode === "grid" ? "#a8c090" : "#909090",
+                    background: viewMode === "grid" ? "#8caaee" : "#414559",
+                    borderColor: viewMode === "grid" ? "#8caaee" : "#626880",
+                    color: viewMode === "grid" ? "#303446" : "#a5adce",
+                    borderRadius: "8px",
                   }}
                 />
                 <Button
@@ -432,75 +419,90 @@ const ProjectWorkspace: React.FC = () => {
                   icon={<UnorderedListOutlined />}
                   onClick={() => setViewMode("list")}
                   style={{
-                    background: viewMode === "list" ? "#151515" : "#151515",
-                    borderColor: "#2a2a2a",
-                    color: viewMode === "list" ? "#a8c090" : "#909090",
+                    background: viewMode === "list" ? "#8caaee" : "#414559",
+                    borderColor: viewMode === "list" ? "#8caaee" : "#626880",
+                    color: viewMode === "list" ? "#303446" : "#a5adce",
+                    borderRadius: "8px",
                   }}
                 />
               </div>
             </div>
 
-            <Row gutter={24}>
+            <Row gutter={[24, 24]}>
               {projects.map((project) => (
-                <Col span={8} key={project.id} style={{ marginBottom: 24 }}>
+                <Col span={8} key={project.id}>
                   <Card
                     hoverable
                     style={{
-                      background: "#151515",
+                      background: "#414559",
                       border: "none",
                       cursor: "pointer",
+                      borderRadius: "16px",
+                      boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
+                      transition: "all 0.3s ease",
+                      overflow: "hidden",
                     }}
                     bodyStyle={{ padding: 0 }}
                     onClick={() => navigate(`/project/${project.id}/editor`)}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-4px)";
+                      e.currentTarget.style.boxShadow = "0 12px 48px rgba(0, 0, 0, 0.2)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "translateY(0)";
+                      e.currentTarget.style.boxShadow = "0 8px 32px rgba(0, 0, 0, 0.12)";
+                    }}
                     cover={
-                      <div style={{ position: "relative", height: 180 }}>
-                        <img
-                          src={project.image}
-                          alt={project.title}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                          }}
-                        />
+                      <div style={{ position: "relative", height: 200, background: "linear-gradient(135deg, #51576d, #626880)" }}>
                         <div
                           style={{
                             position: "absolute",
-                            top: 12,
-                            right: 12,
+                            top: 16,
+                            right: 16,
                             background:
                               project.status === "active"
-                                ? "#a8c090"
-                                : "#7fb069",
-                            color: "#1a1a1a",
-                            padding: "4px 8px",
-                            fontSize: 10,
-                            borderRadius: 2,
+                                ? "#a6d189"
+                                : "#81c8be",
+                            color: "#303446",
+                            padding: "6px 12px",
+                            fontSize: 12,
+                            fontWeight: 600,
+                            borderRadius: "16px",
                           }}
                         >
                           {project.status === "active" ? "进行中" : "已完成"}
                         </div>
+                        <div
+                          style={{
+                            position: "absolute",
+                            bottom: 0,
+                            left: 0,
+                            right: 0,
+                            height: "50%",
+                            background: "linear-gradient(to top, rgba(48, 52, 70, 0.8), transparent)",
+                          }}
+                        />
                       </div>
                     }
                   >
-                    <div style={{ padding: 24 }}>
+                    <div style={{ padding: "24px" }}>
                       <h3
                         style={{
-                          fontSize: 14,
-                          fontWeight: 500,
-                          color: "#f5f5f5",
-                          marginBottom: 8,
-                          margin: 0,
+                          fontSize: 18,
+                          fontWeight: 600,
+                          color: "#c6d0f5",
+                          marginBottom: 12,
+                          margin: "0 0 12px 0",
                         }}
                       >
                         {project.title}
                       </h3>
                       <p
                         style={{
-                          color: "#909090",
-                          fontSize: 10,
+                          color: "#a5adce",
+                          fontSize: 13,
                           marginBottom: 16,
-                          margin: "8px 0 16px 0",
+                          margin: "0 0 16px 0",
                         }}
                       >
                         创建日期：{project.createDate}
@@ -515,18 +517,23 @@ const ProjectWorkspace: React.FC = () => {
                         <div style={{ display: "flex", alignItems: "center" }}>
                           <ClockCircleOutlined
                             style={{
-                              fontSize: 12,
-                              color: "#909090",
+                              fontSize: 14,
+                              color: "#a5adce",
                               marginRight: 8,
                             }}
                           />
-                          <span style={{ color: "#909090", fontSize: 10 }}>
-                            上次编辑：{project.lastEdit}
+                          <span style={{ color: "#a5adce", fontSize: 12 }}>
+                            {project.lastEdit}
                           </span>
                         </div>
                         <Button
                           type="link"
-                          style={{ color: "#a8c090", fontSize: 12, padding: 0 }}
+                          style={{ 
+                            color: "#8caaee", 
+                            fontSize: 13, 
+                            padding: 0,
+                            fontWeight: 500,
+                          }}
                         >
                           查看详情
                         </Button>
@@ -549,8 +556,7 @@ const ProjectWorkspace: React.FC = () => {
               showSizeChanger={false}
             />
           </div>
-        </Content>
-      </Layout>
+      </Content>
 
       {/* 创建项目模态框 */}
       <Modal

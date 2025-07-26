@@ -276,11 +276,11 @@ const VideoAnalysis: React.FC = () => {
 
   return (
     <Layout
-      style={{ minHeight: "100vh", height: "auto", background: "#0a0a0a" }}
+      style={{ minHeight: "100vh", height: "auto", background: "#303446" }}
     >
       <StageHeader />
 
-      <Content style={{ background: "#0a0a0a", padding: "48px" }}>
+      <Content style={{ background: "#303446", padding: "48px 64px" }}>
         {/* 舞台标注界面 */}
         {showStageAnnotation && currentVideoFile && (
           <div
@@ -312,7 +312,7 @@ const VideoAnalysis: React.FC = () => {
                 type="text"
                 onClick={() => navigate("/workspace")}
                 style={{
-                  color: "#c0c0c0",
+                  color: "#a5adce", /* Frappe 次要文本色 */
                   fontSize: 12,
                   padding: "4px 8px",
                   marginRight: 16,
@@ -324,7 +324,7 @@ const VideoAnalysis: React.FC = () => {
                 style={{
                   fontSize: 30,
                   fontWeight: 500,
-                  color: "#f5f5f5",
+                  color: "#c6d0f5", /* Frappe 主要文本色 */
                   margin: 0,
                 }}
               >
@@ -333,7 +333,7 @@ const VideoAnalysis: React.FC = () => {
             </div>
             <p
               style={{
-                color: "#c0c0c0",
+                color: "#a5adce", /* Frappe 次要文本色 */
                 fontSize: 14,
                 margin: 0,
                 marginLeft: 60,
@@ -348,8 +348,10 @@ const VideoAnalysis: React.FC = () => {
         {!showStageAnnotation && (
           <Card
             style={{
-              background: "#151515",
+              background: "#414559",
               border: "none",
+              borderRadius: "16px",
+              boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
               marginBottom: 48,
               padding: "48px",
             }}
@@ -361,7 +363,7 @@ const VideoAnalysis: React.FC = () => {
                   style={{
                     fontSize: 16,
                     fontWeight: 500,
-                    color: "#f5f5f5",
+                    color: "#c6d0f5", /* Frappe 主要文本色 */
                     marginBottom: 16,
                   }}
                 >
@@ -515,9 +517,9 @@ const VideoAnalysis: React.FC = () => {
                     <Button
                       type="primary"
                       style={{
-                        background: "#a8c090",
-                        borderColor: "#a8c090",
-                        color: "#1a1a1a",
+                        background: "linear-gradient(135deg, #a6d189, #81c8be)",
+                        border: "none",
+                        color: "#303446",
                         fontSize: 14,
                         height: "auto",
                         padding: "12px 24px",
@@ -572,7 +574,7 @@ const VideoAnalysis: React.FC = () => {
                       style={{
                         width: 80,
                         height: 45,
-                        background: "#1f1f1f",
+                        background: "#51576d",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -648,7 +650,7 @@ const VideoAnalysis: React.FC = () => {
                         style={{
                           width: 80,
                           height: 45,
-                          background: "#1f1f1f",
+                          background: "#51576d",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -702,9 +704,9 @@ const VideoAnalysis: React.FC = () => {
                 {/* 分析结果统计 */}
                 <div
                   style={{
-                    background: "#1f1f1f",
+                    background: "#51576d",
                     padding: 20,
-                    borderRadius: 8,
+                    borderRadius: 12,
                     marginBottom: 24,
                   }}
                 >
@@ -819,9 +821,9 @@ const VideoAnalysis: React.FC = () => {
                 {/* 台词预览 */}
                 <div
                   style={{
-                    background: "#1f1f1f",
+                    background: "#51576d",
                     padding: 20,
-                    borderRadius: 8,
+                    borderRadius: 12,
                   }}
                 >
                   <h4
@@ -839,9 +841,9 @@ const VideoAnalysis: React.FC = () => {
                     readOnly
                     rows={8}
                     style={{
-                      background: "#0a0a0a",
-                      color: "#c0c0c0",
-                      border: "1px solid #2a2a2a",
+                      background: "#414559",
+                      color: "#c6d0f5",
+                      border: "1px solid #626880",
                       fontSize: 12,
                       resize: "none",
                       fontFamily: "monospace",
@@ -934,8 +936,9 @@ const VideoAnalysis: React.FC = () => {
                     <Col span={6} key={step.id}>
                       <Card
                         style={{
-                          background: "#1f1f1f",
+                          background: "#51576d",
                           border: "none",
+                          borderRadius: "12px",
                           padding: "16px",
                         }}
                       >
@@ -944,7 +947,7 @@ const VideoAnalysis: React.FC = () => {
                             style={{
                               width: 40,
                               height: 40,
-                              background: "#2a2a2a",
+                              background: "#626880",
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "center",
@@ -1032,8 +1035,9 @@ const VideoAnalysis: React.FC = () => {
               <Col span={12}>
                 <Card
                   style={{
-                    background: "#151515",
+                    background: "#414559",
                     border: "none",
+                    borderRadius: "16px",
                     padding: "24px",
                   }}
                 >
@@ -1055,13 +1059,13 @@ const VideoAnalysis: React.FC = () => {
                     >
                       舞台区域划分
                     </h4>
-                    <span style={{ color: "#a8c090", fontSize: 10 }}>
+                    <span style={{ color: "#a6d189", fontSize: 10 }}>
                       65% 完成
                     </span>
                   </div>
                   <div
                     style={{
-                      background: "#1f1f1f",
+                      background: "#51576d",
                       width: "100%",
                       height: 240,
                       display: "flex",
@@ -1096,8 +1100,9 @@ const VideoAnalysis: React.FC = () => {
               <Col span={12}>
                 <Card
                   style={{
-                    background: "#151515",
+                    background: "#414559",
                     border: "none",
+                    borderRadius: "16px",
                     padding: "24px",
                   }}
                 >
@@ -1119,13 +1124,13 @@ const VideoAnalysis: React.FC = () => {
                     >
                       演员定位
                     </h4>
-                    <span style={{ color: "#7fb069", fontSize: 10 }}>
+                    <span style={{ color: "#81c8be", fontSize: 10 }}>
                       100% 完成
                     </span>
                   </div>
                   <div
                     style={{
-                      background: "#1f1f1f",
+                      background: "#51576d",
                       width: "100%",
                       height: 240,
                       display: "flex",
@@ -1191,8 +1196,9 @@ const VideoAnalysis: React.FC = () => {
               <Col span={8}>
                 <Card
                   style={{
-                    background: "#151515",
+                    background: "#414559",
                     border: "none",
+                    borderRadius: "16px",
                     padding: "24px",
                   }}
                 >
@@ -1215,7 +1221,7 @@ const VideoAnalysis: React.FC = () => {
                       }}
                     >
                       <BulbOutlined
-                        style={{ fontSize: 16, color: "#909090" }}
+                        style={{ fontSize: 16, color: "#a5adce" }}
                       />
                     </div>
                     <div>

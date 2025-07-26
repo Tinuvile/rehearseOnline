@@ -1758,7 +1758,7 @@ const StageEditor: React.FC = () => {
 
   return (
     <Layout
-      style={{ minHeight: "100vh", height: "auto", background: "#0a0a0a" }}
+      style={{ minHeight: "100vh", height: "auto", background: "#303446" }}
     >
       <StageHeader />
 
@@ -1766,7 +1766,7 @@ const StageEditor: React.FC = () => {
         {/* 左侧工具栏 */}
         <Sider
           width={240}
-          style={{ background: "#151515", height: "auto", overflow: "visible" }}
+          style={{ background: "#414559", height: "auto", overflow: "visible" }}
         >
           <div
             style={{
@@ -1811,12 +1811,12 @@ const StageEditor: React.FC = () => {
                       style={{
                         background:
                           tool.key === "path" && isDrawingPath
-                            ? "#a8c090"
-                            : "#1f1f1f",
+                            ? "#8caaee" /* Frappe 蓝色 */
+                            : "#414559", /* Frappe 表面色 */
                         color:
                           tool.key === "path" && isDrawingPath
-                            ? "#1a1a1a"
-                            : "#f5f5f5",
+                            ? "#303446" /* Frappe 基础背景色 */
+                            : "#c6d0f5", /* Frappe 主要文本色 */
                         border:
                           selectedActor && tool.key === "remove-actor"
                             ? "1px solid #ff4d4f"
@@ -1845,9 +1845,9 @@ const StageEditor: React.FC = () => {
                   loading={isLoadingAI}
                   onClick={() => handleAIOptimization("quick")}
                   style={{
-                    background: isAIHealthy ? "#a8c090" : "#d08770",
-                    borderColor: isAIHealthy ? "#a8c090" : "#d08770",
-                    color: "#1a1a1a",
+                    background: isAIHealthy ? "#a6d189" : "#e78284", /* Frappe 绿色/红色 */
+                    borderColor: isAIHealthy ? "#a6d189" : "#e78284", /* Frappe 绿色/红色 */
+                    color: "#303446", /* Frappe 基础背景色 */
                     flex: 1,
                     fontSize: 10,
                     height: "auto",
@@ -1863,9 +1863,9 @@ const StageEditor: React.FC = () => {
                   onClick={() => handleAIOptimization("full")}
                   disabled={!isAIHealthy}
                   style={{
-                    background: isAIHealthy ? "#81a1c1" : "#555",
-                    borderColor: isAIHealthy ? "#81a1c1" : "#555",
-                    color: isAIHealthy ? "#1a1a1a" : "#888",
+                    background: isAIHealthy ? "#8caaee" : "#626880", /* Frappe 蓝色/暗色 */
+                    borderColor: isAIHealthy ? "#8caaee" : "#626880", /* Frappe 蓝色/暗色 */
+                    color: isAIHealthy ? "#303446" : "#a5adce", /* Frappe 基础背景色/次要文本色 */
                     flex: 1,
                     fontSize: 10,
                     height: "auto",
@@ -1875,7 +1875,7 @@ const StageEditor: React.FC = () => {
                   AI分析
                 </Button>
               </div>
-              <div style={{ textAlign: "center", fontSize: 8, color: "#888" }}>
+              <div style={{ textAlign: "center", fontSize: 8, color: "#a5adce" /* Frappe 次要文本色 */ }}>
                 {isAIHealthy ? "🟢 AI服务正常" : "🔴 AI服务异常"}
               </div>
             </div>
@@ -1893,8 +1893,8 @@ const StageEditor: React.FC = () => {
           {/* 编辑工具栏 */}
           <div
             style={{
-              background: "#151515",
-              borderBottom: "1px solid #2a2a2a",
+              background: "#414559",
+              borderBottom: "1px solid #626880",
               padding: "12px 24px",
               display: "flex",
               justifyContent: "space-between",
@@ -1903,25 +1903,25 @@ const StageEditor: React.FC = () => {
           >
             {/* 状态显示区域 */}
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <div style={{ fontSize: 12, color: "#888" }}>
+              <div style={{ fontSize: 12, color: "#a5adce" /* Frappe 次要文本色 */ }}>
                 演员总数: {actors.length}
               </div>
               {selectedActor && (
                 <div
-                  style={{ fontSize: 12, color: "#a8c090", fontWeight: "bold" }}
+                  style={{ fontSize: 12, color: "#a6d189" /* Frappe 绿色 */, fontWeight: "bold" }}
                 >
                   已选中: {selectedActor.name} (ID: {selectedActor.id})
                 </div>
               )}
               {!selectedActor && (
-                <div style={{ fontSize: 12, color: "#d08770" }}>
+                <div style={{ fontSize: 12, color: "#ef9f76" /* Frappe 橙色 */ }}>
                   未选中演员 - 点击演员进行选择
                 </div>
               )}
             </div>
-            <h3
+                          <h3
               style={{
-                color: "#f5f5f5",
+                color: "#c6d0f5", /* Frappe 主要文本色 */
                 fontSize: 16,
                 fontWeight: 500,
                 margin: 0,
@@ -1935,7 +1935,7 @@ const StageEditor: React.FC = () => {
                 onClick={undo}
                 disabled={historyIndex < 0}
                 style={{
-                  color: historyIndex >= 0 ? "#c0c0c0" : "#555",
+                  color: historyIndex >= 0 ? "#c6d0f5" /* Frappe 主要文本色 */ : "#626880" /* Frappe 暗色 */,
                   fontSize: 12,
                 }}
                 title={`撤销 (Ctrl+Z) ${
@@ -1951,7 +1951,7 @@ const StageEditor: React.FC = () => {
                 onClick={redo}
                 disabled={historyIndex >= history.length - 1}
                 style={{
-                  color: historyIndex < history.length - 1 ? "#c0c0c0" : "#555",
+                  color: historyIndex < history.length - 1 ? "#c6d0f5" /* Frappe 主要文本色 */ : "#626880" /* Frappe 暗色 */,
                   fontSize: 12,
                 }}
                 title={`重做 (Ctrl+Y) ${
@@ -1967,7 +1967,7 @@ const StageEditor: React.FC = () => {
                 <Button
                   type="text"
                   onClick={clearVideoData}
-                  style={{ color: "#d08770", fontSize: 12 }}
+                  style={{ color: "#ef9f76" /* Frappe 橙色 */, fontSize: 12 }}
                   title="清除当前视频分析数据，回到样例数据"
                 >
                   清除视频数据
@@ -1977,7 +1977,7 @@ const StageEditor: React.FC = () => {
                 <Button
                   type="text"
                   onClick={startPreview}
-                  style={{ color: "#c0c0c0", fontSize: 12 }}
+                  style={{ color: "#c6d0f5" /* Frappe 主要文本色 */, fontSize: 12 }}
                   icon={<EyeOutlined />}
                 >
                   预览
@@ -1997,7 +1997,7 @@ const StageEditor: React.FC = () => {
                       <Button
                         type="text"
                         onClick={clearDynamicPositions}
-                        style={{ color: "#faad14", fontSize: 12 }}
+                        style={{ color: "#f2d5cf" /* Frappe 浅红色 */, fontSize: 12 }}
                         size="small"
                       >
                         清除动态点({dynamicActorPositions.length})
@@ -2005,7 +2005,7 @@ const StageEditor: React.FC = () => {
                       <Button
                         type="text"
                         onClick={exportMergedPositions}
-                        style={{ color: "#52c41a", fontSize: 12 }}
+                        style={{ color: "#a6d189" /* Frappe 绿色 */, fontSize: 12 }}
                         size="small"
                       >
                         导出数据
@@ -2017,9 +2017,9 @@ const StageEditor: React.FC = () => {
               <Button
                 onClick={() => console.log("保存")}
                 style={{
-                  background: "#a8c090",
-                  borderColor: "#a8c090",
-                  color: "#1a1a1a",
+                  background: "#8caaee", /* Frappe 蓝色 */
+                  borderColor: "#8caaee", /* Frappe 蓝色 */
+                  color: "#303446", /* Frappe 基础背景色 */
                   fontSize: 12,
                 }}
               >
@@ -2061,9 +2061,9 @@ const StageEditor: React.FC = () => {
                   message.info("状态已输出到控制台，请按F12查看");
                 }}
                 style={{
-                  background: "#d08770",
-                  borderColor: "#d08770",
-                  color: "#1a1a1a",
+                  background: "#ef9f76", /* Frappe 橙色 */
+                  borderColor: "#ef9f76", /* Frappe 橙色 */
+                  color: "#303446", /* Frappe 基础背景色 */
                   fontSize: 10,
                   marginLeft: 8,
                 }}
@@ -2077,7 +2077,7 @@ const StageEditor: React.FC = () => {
           {/* 舞台画布区域 */}
           <Content
             style={{
-              background: "#0a0a0a",
+              background: "#303446",
               padding: 24,
               minHeight: "600px",
               height: "auto",
@@ -2097,20 +2097,21 @@ const StageEditor: React.FC = () => {
             >
               <Button
                 style={{
-                  background: "#151515",
+                  background: "#414559",
                   border: "none",
-                  color: "#f5f5f5",
+                  color: "#c6d0f5",
                   width: 32,
                   height: 32,
                   padding: 0,
+                  borderRadius: "8px",
                 }}
                 icon={<PlusOutlined />}
               />
               <Button
                 style={{
-                  background: "#151515",
+                  background: "#414559",
                   border: "none",
-                  color: "#f5f5f5",
+                  color: "#c6d0f5",
                   width: 32,
                   height: 32,
                   padding: 0,
@@ -2134,7 +2135,7 @@ const StageEditor: React.FC = () => {
                   position: "relative",
                   width: 800,
                   height: 500,
-                  background: "#151515",
+                  background: "#414559",
                 }}
               >
                 {/* 舞台区域 */}
@@ -2145,8 +2146,8 @@ const StageEditor: React.FC = () => {
                     right: 24,
                     bottom: 24,
                     left: 24,
-                    background: "#1f1f1f",
-                    border: "1px solid #2a2a2a",
+                    background: "#292c3c", /* Frappe 深色背景 */
+                    border: "1px solid #51576d", /* Frappe 边框色 */
                     cursor:
                       isDrawingPath || isDrawingArea ? "crosshair" : "default",
                   }}
@@ -2745,7 +2746,7 @@ const StageEditor: React.FC = () => {
           {/* 时间轴区域 */}
           <div
             style={{
-              background: "#151515",
+              background: "#414559",
               minHeight: 180,
               height: "auto",
               padding: 24,
@@ -2764,9 +2765,9 @@ const StageEditor: React.FC = () => {
                 <Button
                   onClick={togglePlayback}
                   style={{
-                    background: isPlaying ? "#a8c090" : "#1f1f1f",
+                    background: isPlaying ? "#a6d189" : "#51576d",
                     border: "none",
-                    color: isPlaying ? "#1a1a1a" : "#f5f5f5",
+                    color: isPlaying ? "#303446" : "#c6d0f5",
                     width: 32,
                     height: 32,
                     marginRight: 8,
@@ -2851,8 +2852,8 @@ const StageEditor: React.FC = () => {
               <Button
                 onClick={addKeyframe}
                 style={{
-                  background: selectedActor ? "#a8c090" : "#1f1f1f",
-                  color: selectedActor ? "#1a1a1a" : "#f5f5f5",
+                  background: selectedActor ? "#a6d189" : "#51576d",
+                  color: selectedActor ? "#303446" : "#c6d0f5",
                   border: "none",
                   fontSize: 12,
                   height: "auto",
@@ -2876,8 +2877,8 @@ const StageEditor: React.FC = () => {
               <div
                 style={{
                   width: 60,
-                  color: "#909090",
-                  borderRight: "1px solid #2a2a2a",
+                  color: "#a5adce",
+                  borderRight: "1px solid #626880",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -3044,7 +3045,7 @@ const StageEditor: React.FC = () => {
         {/* 右侧属性面板 */}
         <Sider
           width={320}
-          style={{ background: "#151515", height: "auto", overflow: "visible" }}
+          style={{ background: "#414559", height: "auto", overflow: "visible" }}
         >
           <div style={{ padding: 16 }}>
             <h3
