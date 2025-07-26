@@ -8,6 +8,7 @@ import sys
 import subprocess
 import time
 import threading
+import platform
 from pathlib import Path
 
 def print_banner():
@@ -34,10 +35,9 @@ def check_dependencies():
         print("请运行: pip install -r requirements.txt")
         return False
     
-    # 检查Node.js (加载nvm环境)
+    # 检查Node.js (跨平台兼容)
     try:
-        nvm_cmd = 'export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && node --version'
-        result = subprocess.run(nvm_cmd, capture_output=True, text=True, shell=True)
+        result = subprocess.run(['node', '--version'], capture_output=True, text=True, shell=True)
         if result.returncode == 0:
             print(f"✅ Node.js版本: {result.stdout.strip()}")
         else:
@@ -46,10 +46,9 @@ def check_dependencies():
         print("❌ Node.js未安装")
         return False
     
-    # 检查npm (加载nvm环境)
+    # 检查npm (跨平台兼容)
     try:
-        nvm_cmd = 'export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && npm --version'
-        result = subprocess.run(nvm_cmd, capture_output=True, text=True, shell=True)
+        result = subprocess.run(['npm', '--version'], capture_output=True, text=True, shell=True)
         if result.returncode == 0:
             print(f"✅ npm版本: {result.stdout.strip()}")
         else:
@@ -98,16 +97,14 @@ def start_frontend():
     if not (frontend_dir / "node_modules").exists():
         print("📦 安装前端依赖...")
         try:
-            nvm_cmd = 'export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && npm install'
-            subprocess.run(nvm_cmd, check=True, shell=True)
+            subprocess.run(['npm', 'install'], check=True, shell=True)
         except subprocess.CalledProcessError as e:
             print(f"❌ 前端依赖安装失败: {e}")
             sys.exit(1)
     
     try:
         # 启动React服务
-        nvm_cmd = 'export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && npm start'
-        subprocess.run(nvm_cmd, check=True, shell=True)
+        subprocess.run(['npm', 'start'], check=True, shell=True)
     except subprocess.CalledProcessError as e:
         print(f"❌ 前端启动失败: {e}")
         sys.exit(1)
