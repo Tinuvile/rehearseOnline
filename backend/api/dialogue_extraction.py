@@ -280,44 +280,50 @@ async def get_supported_formats():
 # 辅助函数
 def convert_transcripts_to_stage_dialogues(transcripts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    将转录片段转换为舞台编辑器可用的台词格式
-    
+    将转录片段转换为舞台编辑器可用的台词格式，根据识别到的说话人数量动态分配角色ID
+
     Args:
         transcripts: 转录片段列表
-        
+
     Returns:
         舞台台词格式列表
     """
     stage_dialogues = []
-    
+
+    # 首先统计所有说话人
+    speaker_ids = set()
+    for transcript in transcripts:
+        if transcript.get("speaker_id"):
+            speaker_ids.add(transcript["speaker_id"])
+
+    # 创建说话人到角色ID的映射
+    speaker_list = sorted(list(speaker_ids))  # 排序确保一致性
+    speaker_to_actor_map = {}
+    for i, speaker_id in enumerate(speaker_list):
+        speaker_to_actor_map[speaker_id] = i + 1
+
+    print(f"识别到 {len(speaker_list)} 个说话人: {speaker_list}")
+    print(f"说话人映射: {speaker_to_actor_map}")
+
     for i, transcript in enumerate(transcripts):
         # 基础映射
         dialogue = {
             "id": f"dialogue_{i+1}",
-            "actorId": 1,  # 默认演员ID，用户可后续调整
+            "actorId": 1,  # 默认演员ID
             "content": transcript.get("text", ""),
             "startTime": transcript.get("start_time", 0),
             "duration": transcript.get("end_time", 5) - transcript.get("start_time", 0),
             "emotion": None,  # 不进行情感分析
             "volume": 80,  # 默认音量
         }
-        
-        # 如果有说话人信息，尝试映射到不同演员
+
+        # 根据说话人映射分配角色ID
         if transcript.get("speaker_id"):
             speaker_id = transcript["speaker_id"]
-            # 简单映射：spk_0->演员1, spk_1->演员2, spk_2->演员3
-            if speaker_id == "spk_0":
-                dialogue["actorId"] = 1
-            elif speaker_id == "spk_1":
-                dialogue["actorId"] = 2
-            elif speaker_id == "spk_2":
-                dialogue["actorId"] = 3
-            else:
-                # 其他说话人映射到演员1
-                dialogue["actorId"] = 1
-        
+            dialogue["actorId"] = speaker_to_actor_map.get(speaker_id, 1)
+
         stage_dialogues.append(dialogue)
-    
+
     return stage_dialogues
 
 @router.post("/video/{video_id}/convert-to-stage")

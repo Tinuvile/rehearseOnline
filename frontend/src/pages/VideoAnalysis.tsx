@@ -233,10 +233,19 @@ const VideoAnalysis: React.FC = () => {
   // 进入舞台编辑器
   const enterStageEditor = () => {
     if (uploadResult) {
+      // 统计所有说话人
+      const allSpeakers = Array.from(new Set(
+        uploadResult.transcripts
+          .map(t => t.speaker_id)
+          .filter(Boolean)
+      )).sort();
+
+      console.log(`视频分析识别到 ${allSpeakers.length} 个说话人:`, allSpeakers);
+
       // 将台词数据存储到localStorage，供舞台编辑器使用
       const dialogues = uploadResult.transcripts.map((transcript, index) => ({
         id: `uploaded_dialogue_${index + 1}`,
-        actorId: getSpeakerActorId(transcript.speaker_id),
+        actorId: getSpeakerActorId(transcript.speaker_id, allSpeakers),
         content: transcript.text,
         startTime: transcript.start_time,
         duration: transcript.end_time - transcript.start_time,
@@ -244,8 +253,17 @@ const VideoAnalysis: React.FC = () => {
         volume: 80,
       }));
 
+      // 同时存储原始转录数据，供舞台编辑器创建角色时使用
+      const stageData = {
+        dialogues,
+        transcripts: uploadResult.transcripts,
+        speakerCount: allSpeakers.length,
+        speakers: allSpeakers
+      };
+
       localStorage.setItem("extractedDialogues", JSON.stringify(dialogues));
       localStorage.setItem("videoAnalysisResult", JSON.stringify(uploadResult));
+      localStorage.setItem("stageData", JSON.stringify(stageData));
 
       navigate("/editor");
     } else {
@@ -253,14 +271,12 @@ const VideoAnalysis: React.FC = () => {
     }
   };
 
-  const getSpeakerActorId = (speakerId?: string): number => {
+  const getSpeakerActorId = (speakerId?: string, allSpeakers: string[] = []): number => {
     if (!speakerId) return 1;
 
-    if (speakerId === "spk_0") return 1;
-    if (speakerId === "spk_1") return 2;
-    if (speakerId === "spk_2") return 3;
-
-    return 1; // 默认分配给演员1
+    // 动态映射：根据说话人在排序列表中的位置分配ID
+    const speakerIndex = allSpeakers.indexOf(speakerId);
+    return speakerIndex >= 0 ? speakerIndex + 1 : 1;
   };
 
   const getStepStatusColor = (status: string) => {
@@ -1140,7 +1156,7 @@ const VideoAnalysis: React.FC = () => {
                       position: "relative",
                     }}
                   >
-                    {/* 模拟散点图 */}
+                    {/* 动态演员定位散点图 */}
                     <div
                       style={{
                         position: "relative",
@@ -1148,34 +1164,59 @@ const VideoAnalysis: React.FC = () => {
                         height: "100%",
                       }}
                     >
-                      {[
-                        { x: 100, y: 80, label: "演员1" },
-                        { x: 200, y: 120, label: "演员2" },
-                        { x: 150, y: 180, label: "演员3" },
-                        { x: 300, y: 100, label: "演员4" },
-                        { x: 250, y: 160, label: "演员5" },
-                      ].map((point, index) => (
-                        <div
-                          key={index}
-                          style={{
-                            position: "absolute",
-                            left: point.x,
-                            top: point.y,
-                            width: 15,
-                            height: 15,
-                            borderRadius: "50%",
-                            background: "#a8c090",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: 8,
-                            color: "#1a1a1a",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {index + 1}
-                        </div>
-                      ))}
+                      {(() => {
+                        // 获取识别到的说话人数量
+                        const speakerCount = uploadResult?.speaker_count || 0;
+
+                        // 根据说话人数量生成位置点
+                        const generateActorPositions = (count: number) => {
+                          const colors = ["#a8c090", "#81a1c1", "#e6b17a", "#d08770", "#b48ead", "#88c0d0"];
+                          const positions = [
+                            { x: 100, y: 80 },
+                            { x: 200, y: 120 },
+                            { x: 150, y: 180 },
+                            { x: 300, y: 100 },
+                            { x: 250, y: 160 },
+                            { x: 180, y: 60 },
+                            { x: 320, y: 180 },
+                            { x: 80, y: 140 }
+                          ];
+
+                          return Array.from({ length: count }, (_, index) => ({
+                            x: positions[index]?.x || 100 + (index % 3) * 100,
+                            y: positions[index]?.y || 80 + Math.floor(index / 3) * 60,
+                            color: colors[index] || "#a8c090",
+                            label: index === 0 ? "主角" : `配角${String.fromCharCode(65 + index - 1)}`
+                          }));
+                        };
+
+                        const actorPositions = generateActorPositions(speakerCount);
+
+                        return actorPositions.map((point, index) => (
+                          <div
+                            key={index}
+                            style={{
+                              position: "absolute",
+                              left: point.x,
+                              top: point.y,
+                              width: 15,
+                              height: 15,
+                              borderRadius: "50%",
+                              background: point.color,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: 8,
+                              color: "#1a1a1a",
+                              fontWeight: "bold",
+                              boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                            }}
+                            title={point.label}
+                          >
+                            {index + 1}
+                          </div>
+                        ));
+                      })()}
                     </div>
                   </div>
                   <p
@@ -1185,7 +1226,10 @@ const VideoAnalysis: React.FC = () => {
                       margin: 0,
                     }}
                   >
-                    检测到5名演员，分布在舞台不同位置。可在编辑界面中调整定位和分配角色
+                    {uploadResult ?
+                      `检测到${uploadResult.speaker_count}名演员，分布在舞台不同位置。可在编辑界面中调整定位和分配角色` :
+                      "检测到多名演员，分布在舞台不同位置。可在编辑界面中调整定位和分配角色"
+                    }
                   </p>
                 </Card>
               </Col>

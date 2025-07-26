@@ -261,38 +261,103 @@ const StageEditor: React.FC = () => {
   const [movementForm] = Form.useForm();
   const [areaForm] = Form.useForm();
 
+  // 根据视频识别结果动态创建角色
+  const createActorsFromVideoData = useCallback(() => {
+    // 优先从stageData获取说话人信息
+    const stageDataStr = localStorage.getItem("stageData");
+
+    if (stageDataStr) {
+      try {
+        const stageData = JSON.parse(stageDataStr);
+        const speakers = stageData.speakers || [];
+
+        if (speakers.length > 0) {
+          const colors = ["#a8c090", "#81a1c1", "#e6b17a", "#d08770", "#b48ead", "#88c0d0"];
+          const positions = [
+            { x: 200, y: 120 },
+            { x: 350, y: 200 },
+            { x: 150, y: 250 },
+            { x: 450, y: 150 },
+            { x: 100, y: 300 },
+            { x: 400, y: 300 }
+          ];
+
+          const newActors = speakers.map((speakerId: string, index: number) => ({
+            id: index + 1,
+            name: index === 0 ? "主角" : `配角${String.fromCharCode(65 + index - 1)}`, // A, B, C...
+            x: positions[index]?.x || 200 + index * 50,
+            y: positions[index]?.y || 120 + index * 30,
+            color: colors[index] || "#a8c090",
+            role: index === 0 ? "主演" : "配演",
+            speed: 1.2 - index * 0.1,
+          }));
+
+          console.log(`根据视频识别到 ${speakers.length} 个说话人，创建对应角色:`, newActors);
+          return newActors;
+        }
+      } catch (error) {
+        console.error("解析舞台数据失败:", error);
+      }
+    }
+
+    // 如果没有舞台数据，尝试从台词数据推断
+    const extractedDialogues = localStorage.getItem("extractedDialogues");
+    if (extractedDialogues) {
+      try {
+        const dialogues = JSON.parse(extractedDialogues);
+        const actorIds = new Set<number>();
+        dialogues.forEach((dialogue: any) => {
+          if (dialogue.actorId) {
+            actorIds.add(dialogue.actorId);
+          }
+        });
+
+        const maxActorId = Math.max(...Array.from(actorIds));
+        const colors = ["#a8c090", "#81a1c1", "#e6b17a", "#d08770", "#b48ead", "#88c0d0"];
+        const positions = [
+          { x: 200, y: 120 },
+          { x: 350, y: 200 },
+          { x: 150, y: 250 },
+          { x: 450, y: 150 },
+          { x: 100, y: 300 },
+          { x: 400, y: 300 }
+        ];
+
+        const newActors = Array.from({length: maxActorId}, (_, index) => ({
+          id: index + 1,
+          name: index === 0 ? "主角" : `配角${String.fromCharCode(65 + index - 1)}`,
+          x: positions[index]?.x || 200 + index * 50,
+          y: positions[index]?.y || 120 + index * 30,
+          color: colors[index] || "#a8c090",
+          role: index === 0 ? "主演" : "配演",
+          speed: 1.2 - index * 0.1,
+        }));
+
+        console.log(`根据台词数据推断出 ${maxActorId} 个角色:`, newActors);
+        return newActors;
+
+      } catch (error) {
+        console.error("解析台词数据失败:", error);
+      }
+    }
+
+    // 如果没有任何数据，创建默认的单个角色
+    return [{
+      id: 1,
+      name: "演员",
+      x: 200,
+      y: 120,
+      color: "#a8c090",
+      role: "主演",
+      speed: 1.2,
+    }];
+  }, []);
+
   // 初始化数据
   React.useEffect(() => {
     if (actors.length === 0) {
-      setActors([
-        {
-          id: 1,
-          name: "主角",
-          x: 200,
-          y: 120,
-          color: "#a8c090",
-          role: "主演",
-          speed: 1.2,
-        },
-        {
-          id: 2,
-          name: "配角A",
-          x: 350,
-          y: 200,
-          color: "#81a1c1",
-          role: "配演",
-          speed: 1.0,
-        },
-        {
-          id: 3,
-          name: "配角B",
-          x: 150,
-          y: 250,
-          color: "#e6b17a",
-          role: "配演",
-          speed: 0.8,
-        },
-      ]);
+      const newActors = createActorsFromVideoData();
+      setActors(newActors);
 
       setStageElements([
         {
@@ -326,15 +391,23 @@ const StageEditor: React.FC = () => {
 
         if (extractedDialogues) {
           const parsedDialogues = JSON.parse(extractedDialogues);
-          loadedDialogues = parsedDialogues;
+
+          // 验证台词数据中的actorId是否与创建的角色匹配
+          const maxActorId = Math.max(...newActors.map((actor: Actor) => actor.id));
+          loadedDialogues = parsedDialogues.map((dialogue: any) => ({
+            ...dialogue,
+            // 确保actorId在有效范围内
+            actorId: dialogue.actorId <= maxActorId ? dialogue.actorId : 1
+          }));
 
           if (videoAnalysisResult) {
             const analysisData = JSON.parse(videoAnalysisResult);
             message.success(
-              `已加载从视频"${analysisData.filename}"中提取的 ${parsedDialogues.length} 条台词`
+              `已加载从视频"${analysisData.filename}"中提取的 ${parsedDialogues.length} 条台词，匹配到 ${newActors.length} 个角色`
             );
           }
 
+          console.log(`台词数据已匹配到 ${newActors.length} 个动态创建的角色`);
           // 不立即清除localStorage数据，让用户可以多次访问
           // localStorage.removeItem("extractedDialogues");
           // localStorage.removeItem("videoAnalysisResult");
