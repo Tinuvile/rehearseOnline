@@ -1,0 +1,112 @@
+{
+  "dialogues": [
+    {
+      "id": "dialogue_1",
+      "actorId": 1,
+      "content": "欢迎来到我们的舞台表演！今天将为大家带来一场精彩的演出。",
+      "startTime": 2,
+      "duration": 4,
+      "emotion": "喜悦",
+      "volume": 85
+    },
+    {
+      "id": "dialogue_2",
+      "actorId": 2,
+      "content": "是的，我们准备了很久，希望能够带给观众最好的体验。",
+      "startTime": 7,
+      "duration": 3.5,
+      "emotion": "平静",
+      "volume": 80
+    },
+    {
+      "id": "dialogue_3",
+      "actorId": 3,
+      "content": "让我们开始这次奇妙的旅程吧！",
+      "startTime": 11,
+      "duration": 2.5,
+      "emotion": "激动",
+      "volume": 90
+    },
+    {
+      "id": "dialogue_4",
+      "actorId": 1,
+      "content": "在这个故事中，我们将探索友谊与勇气的真谛。",
+      "startTime": 15,
+      "duration": 4,
+      "emotion": "平静",
+      "volume": 85
+    },
+    {
+      "id": "dialogue_5",
+      "actorId": 2,
+      "content": "每个人都有自己的角色，都有自己的使命。",
+      "startTime": 20,
+      "duration": 3,
+      "emotion": "平静",
+      "volume": 80
+    },
+    {
+      "id": "dialogue_6",
+      "actorId": 3,
+      "content": "但最重要的是，我们要团结一心！",
+      "startTime": 24,
+      "duration": 2.5,
+      "emotion": "激动",
+      "volume": 95
+    },
+    {
+      "id": "dialogue_7",
+      "actorId": 1,
+      "content": "没错，只有携手并进，我们才能克服所有困难。",
+      "startTime": 28,
+      "duration": 4,
+      "emotion": "平静",
+      "volume": 85
+    },
+    {
+      "id": "dialogue_8",
+      "actorId": 2,
+      "content": "前方的路虽然充满挑战...",
+      "startTime": 33,
+      "duration": 2.5,
+      "emotion": "紧张",
+      "volume": 75
+    },
+    {
+      "id": "dialogue_9",
+      "actorId": 3,
+      "content": "但我们有信心面对一切！",
+      "startTime": 36,
+      "duration": 2,
+      "emotion": "激动",
+      "volume": 90
+    },
+    {
+      "id": "dialogue_10",
+      "actorId": 1,
+      "content": "让我们一起踏上这段冒险之旅！",
+      "startTime": 39,
+      "duration": 3,
+      "emotion": "喜悦",
+      "volume": 85
+    }
+  ],
+  "actorPositions": [
+    { "actorId": 1, "time": 0, "x": 200, "y": 120 },
+    { "actorId": 1, "time": 8, "x": 400, "y": 220 },
+    { "actorId": 1, "time": 20, "x": 540, "y": 180 },
+    { "actorId": 1, "time": 28, "x": 460, "y": 220 },
+    { "actorId": 1, "time": 42, "x": 320, "y": 120 },
+    { "actorId": 2, "time": 0, "x": 350, "y": 200 },
+    { "actorId": 2, "time": 10, "x": 250, "y": 300 },
+    { "actorId": 2, "time": 20, "x": 350, "y": 240 },
+    { "actorId": 2, "time": 30, "x": 450, "y": 140 },
+    { "actorId": 2, "time": 42, "x": 370, "y": 260 },
+    { "actorId": 3, "time": 0, "x": 150, "y": 250 },
+    { "actorId": 3, "time": 10, "x": 250, "y": 350 },
+    { "actorId": 3, "time": 20, "x": 350, "y": 250 },
+    { "actorId": 3, "time": 30, "x": 250, "y": 150 },
+    { "actorId": 3, "time": 42, "x": 130, "y": 190 }
+  ],
+  "totalDuration": 45
+}

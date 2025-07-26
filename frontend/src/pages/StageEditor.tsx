@@ -42,6 +42,7 @@ import {
   getActorPositionAtTime,
   getDialoguesAtTime,
   type SampleDialogue,
+  type SampleActorPosition,
 } from "../data/sampleData";
 import {
   aiService,
@@ -199,6 +200,9 @@ const StageEditor: React.FC = () => {
     [actorId: number]: { x: number; y: number };
   }>({});
   const [playbackSpeed, setPlaybackSpeed] = useState(1); // 播放速度倍率
+  const [dynamicActorPositions, setDynamicActorPositions] = useState<
+    SampleActorPosition[]
+  >([]); // 动态添加的位置点
 
   // 模态框状态
   const [addActorModalVisible, setAddActorModalVisible] = useState(false);
@@ -703,7 +707,7 @@ const StageEditor: React.FC = () => {
     const initialPositions: { [actorId: number]: { x: number; y: number } } =
       {};
     actors.forEach((actor) => {
-      const position = getActorPositionAtTime(actor.id, 0);
+      const position = getActorPositionAtTimeWithDynamic(actor.id, 0);
       initialPositions[actor.id] = position;
     });
     setPreviewActorPositions(initialPositions);
@@ -724,7 +728,7 @@ const StageEditor: React.FC = () => {
         const newPositions: { [actorId: number]: { x: number; y: number } } =
           {};
         actors.forEach((actor) => {
-          const position = getActorPositionAtTime(actor.id, newTime);
+          const position = getActorPositionAtTimeWithDynamic(actor.id, newTime);
           newPositions[actor.id] = position;
         });
         setPreviewActorPositions(newPositions);
@@ -764,7 +768,7 @@ const StageEditor: React.FC = () => {
         const newPositions: { [actorId: number]: { x: number; y: number } } =
           {};
         actors.forEach((actor) => {
-          const position = getActorPositionAtTime(actor.id, newTime);
+          const position = getActorPositionAtTimeWithDynamic(actor.id, newTime);
           newPositions[actor.id] = position;
         });
         setPreviewActorPositions(newPositions);
@@ -781,6 +785,7 @@ const StageEditor: React.FC = () => {
     setIsPlaying(false);
     setPreviewCurrentTime(0);
     setPreviewActorPositions({});
+    setDynamicActorPositions([]); // 清除动态位置点
 
     if (previewPlayInterval) {
       clearInterval(previewPlayInterval);
@@ -790,13 +795,57 @@ const StageEditor: React.FC = () => {
     message.info("退出预览模式");
   };
 
+  // 清除动态位置点
+  const clearDynamicPositions = () => {
+    setDynamicActorPositions([]);
+    message.success("已清除所有动态位置点");
+  };
+
+  // 导出合并后的位置数据
+  const exportMergedPositions = () => {
+    const mergedData = {
+      dialogues: samplePreviewData.dialogues,
+      actorPositions: [] as SampleActorPosition[],
+      totalDuration: samplePreviewData.totalDuration,
+      dynamicPositionsCount: dynamicActorPositions.length,
+    };
+
+    // 合并所有演员的位置数据
+    actors.forEach((actor) => {
+      const positions = getMergedActorPositions(actor.id);
+      mergedData.actorPositions.push(...positions);
+    });
+
+    // 按时间排序
+    mergedData.actorPositions.sort((a, b) => a.time - b.time);
+
+    // 创建下载链接
+    const dataStr = JSON.stringify(mergedData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: "application/json" });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `merged_actor_positions_${new Date()
+      .toISOString()
+      .slice(0, 19)
+      .replace(/:/g, "-")}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    message.success(
+      `已导出合并数据，包含${mergedData.actorPositions.length}个位置点（其中${dynamicActorPositions.length}个为动态添加）`
+    );
+  };
+
   const seekToTime = (time: number) => {
     setPreviewCurrentTime(time);
 
     // 更新演员位置
     const newPositions: { [actorId: number]: { x: number; y: number } } = {};
     actors.forEach((actor) => {
-      const position = getActorPositionAtTime(actor.id, time);
+      const position = getActorPositionAtTimeWithDynamic(actor.id, time);
       newPositions[actor.id] = position;
     });
     setPreviewActorPositions(newPositions);
@@ -817,6 +866,92 @@ const StageEditor: React.FC = () => {
       return previewActorPositions[actor.id];
     }
     return { x: actor.x, y: actor.y };
+  };
+
+  // 获取合并后的演员位置数据（原始数据 + 动态添加的数据）
+  const getMergedActorPositions = (actorId: number): SampleActorPosition[] => {
+    const originalPositions = samplePreviewData.actorPositions.filter(
+      (pos) => pos.actorId === actorId
+    );
+    const dynamicPositions = dynamicActorPositions.filter(
+      (pos) => pos.actorId === actorId
+    );
+
+    // 合并并排序
+    const merged = [...originalPositions, ...dynamicPositions].sort(
+      (a, b) => a.time - b.time
+    );
+    return merged;
+  };
+
+  // 根据时间获取演员位置（使用合并后的数据）
+  const getActorPositionAtTimeWithDynamic = (
+    actorId: number,
+    time: number
+  ): { x: number; y: number } => {
+    const positions = getMergedActorPositions(actorId);
+
+    if (positions.length === 0) {
+      return { x: 200, y: 200 }; // 默认位置
+    }
+
+    // 找到最接近的时间点
+    const sortedPositions = positions.sort((a, b) => a.time - b.time);
+
+    // 如果时间小于第一个关键帧，返回第一个位置
+    if (time <= sortedPositions[0].time) {
+      return { x: sortedPositions[0].x, y: sortedPositions[0].y };
+    }
+
+    // 如果时间大于最后一个关键帧，返回最后一个位置
+    if (time >= sortedPositions[sortedPositions.length - 1].time) {
+      const lastPos = sortedPositions[sortedPositions.length - 1];
+      return { x: lastPos.x, y: lastPos.y };
+    }
+
+    // 找到时间区间并插值
+    for (let i = 0; i < sortedPositions.length - 1; i++) {
+      const currentPos = sortedPositions[i];
+      const nextPos = sortedPositions[i + 1];
+
+      if (time >= currentPos.time && time <= nextPos.time) {
+        // 线性插值
+        const progress =
+          (time - currentPos.time) / (nextPos.time - currentPos.time);
+        const x = currentPos.x + (nextPos.x - currentPos.x) * progress;
+        const y = currentPos.y + (nextPos.y - currentPos.y) * progress;
+
+        return { x: Math.round(x), y: Math.round(y) };
+      }
+    }
+
+    return { x: sortedPositions[0].x, y: sortedPositions[0].y };
+  };
+
+  // 在预览暂停时添加新的位置点
+  const addDynamicPosition = (actorId: number, x: number, y: number) => {
+    if (!isPreviewMode || isPlaying) {
+      return; // 只在预览暂停时允许添加
+    }
+
+    const newPosition: SampleActorPosition = {
+      actorId,
+      time: previewCurrentTime,
+      x: Math.round(x),
+      y: Math.round(y),
+    };
+
+    setDynamicActorPositions((prev) => [...prev, newPosition]);
+
+    // 立即更新预览位置
+    setPreviewActorPositions((prev) => ({
+      ...prev,
+      [actorId]: { x: Math.round(x), y: Math.round(y) },
+    }));
+
+    message.success(
+      `已为演员${actorId}在${formatTimeDisplay(previewCurrentTime)}添加位置点`
+    );
   };
 
   const handleToolClick = (toolKey: string) => {
@@ -1014,19 +1149,36 @@ const StageEditor: React.FC = () => {
   };
 
   // 拖拽功能
-  const handleMouseDown = useCallback((e: React.MouseEvent, actor: Actor) => {
-    e.preventDefault();
-    setIsDragging(true);
-    setSelectedActor(actor);
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent, actor: Actor) => {
+      e.preventDefault();
 
-    const rect = (
-      e.currentTarget.parentElement as HTMLElement
-    ).getBoundingClientRect();
-    setDragOffset({
-      x: e.clientX - rect.left - actor.x,
-      y: e.clientY - rect.top - actor.y,
-    });
-  }, []);
+      // 在预览模式下，只有暂停时才允许拖拽
+      if (isPreviewMode && isPlaying) {
+        message.info("请先暂停预览后再拖拽演员");
+        return;
+      }
+
+      setIsDragging(true);
+      setSelectedActor(actor);
+
+      const rect = (
+        e.currentTarget.parentElement as HTMLElement
+      ).getBoundingClientRect();
+
+      // 获取当前演员的实际位置（预览模式使用预览位置，编辑模式使用演员位置）
+      const currentPosition =
+        isPreviewMode && previewActorPositions[actor.id]
+          ? previewActorPositions[actor.id]
+          : { x: actor.x, y: actor.y };
+
+      setDragOffset({
+        x: e.clientX - rect.left - currentPosition.x,
+        y: e.clientY - rect.top - currentPosition.y,
+      });
+    },
+    [isPreviewMode, isPlaying, previewActorPositions]
+  );
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
@@ -1038,7 +1190,17 @@ const StageEditor: React.FC = () => {
         // 演员限制在舞台内
         const boundedX = Math.max(20, Math.min(730, newX));
         const boundedY = Math.max(20, Math.min(430, newY));
-        updateActorPosition(selectedActor.id, boundedX, boundedY);
+
+        if (isPreviewMode && !isPlaying) {
+          // 预览暂停时，实时更新预览位置
+          setPreviewActorPositions((prev) => ({
+            ...prev,
+            [selectedActor.id]: { x: boundedX, y: boundedY },
+          }));
+        } else {
+          // 编辑模式下，更新演员位置
+          updateActorPosition(selectedActor.id, boundedX, boundedY);
+        }
       } else if (isDraggingElement && selectedElement) {
         // 元素限制在舞台内
         const boundedX = Math.max(
@@ -1065,20 +1227,43 @@ const StageEditor: React.FC = () => {
       selectedElement,
       selectedLight,
       dragOffset,
+      isPreviewMode,
+      isPlaying,
     ]
   );
 
   const handleMouseUp = useCallback(() => {
     if (isDragging && selectedActor) {
-      console.log(
-        `演员 ${selectedActor.name} 拖拽结束，位置: (${selectedActor.x}, ${selectedActor.y})`
-      );
-      message.info(`${selectedActor.name} 位置已更新`);
+      if (isPreviewMode && !isPlaying) {
+        // 预览暂停时，添加新的位置点到动态数据中
+        const currentPosition = previewActorPositions[selectedActor.id];
+        if (currentPosition) {
+          addDynamicPosition(
+            selectedActor.id,
+            currentPosition.x,
+            currentPosition.y
+          );
+        }
+        console.log(
+          `预览模式下演员 ${selectedActor.name} 拖拽结束，位置: (${currentPosition?.x}, ${currentPosition?.y})`
+        );
+      } else {
+        console.log(
+          `演员 ${selectedActor.name} 拖拽结束，位置: (${selectedActor.x}, ${selectedActor.y})`
+        );
+        message.info(`${selectedActor.name} 位置已更新`);
+      }
     }
     setIsDragging(false);
     setIsDraggingElement(false);
     setIsDraggingLight(false);
-  }, [isDragging, selectedActor]);
+  }, [
+    isDragging,
+    selectedActor,
+    isPreviewMode,
+    isPlaying,
+    previewActorPositions,
+  ]);
 
   // 舞台元素拖拽处理
   const handleElementMouseDown = useCallback(
@@ -1755,14 +1940,36 @@ const StageEditor: React.FC = () => {
                   预览
                 </Button>
               ) : (
-                <Button
-                  type="text"
-                  onClick={stopPreview}
-                  style={{ color: "#ff4d4f", fontSize: 12 }}
-                  icon={<StopOutlined />}
-                >
-                  退出预览
-                </Button>
+                <>
+                  <Button
+                    type="text"
+                    onClick={stopPreview}
+                    style={{ color: "#ff4d4f", fontSize: 12 }}
+                    icon={<StopOutlined />}
+                  >
+                    退出预览
+                  </Button>
+                  {dynamicActorPositions.length > 0 && (
+                    <>
+                      <Button
+                        type="text"
+                        onClick={clearDynamicPositions}
+                        style={{ color: "#faad14", fontSize: 12 }}
+                        size="small"
+                      >
+                        清除动态点({dynamicActorPositions.length})
+                      </Button>
+                      <Button
+                        type="text"
+                        onClick={exportMergedPositions}
+                        style={{ color: "#52c41a", fontSize: 12 }}
+                        size="small"
+                      >
+                        导出数据
+                      </Button>
+                    </>
+                  )}
+                </>
               )}
               <Button
                 onClick={() => console.log("保存")}
@@ -2144,9 +2351,39 @@ const StageEditor: React.FC = () => {
                     />
                   </div>
 
+                  {/* 动态位置点显示 */}
+                  {dynamicActorPositions.map((pos, index) => {
+                    const actor = actors.find((a) => a.id === pos.actorId);
+                    if (!actor) return null;
+
+                    return (
+                      <div
+                        key={`dynamic-${pos.actorId}-${pos.time}-${index}`}
+                        style={{
+                          position: "absolute",
+                          left: pos.x,
+                          top: pos.y,
+                          transform: "translate(-50%, -50%)",
+                          width: 8,
+                          height: 8,
+                          borderRadius: "50%",
+                          background: actor.color,
+                          border: "2px solid #fff",
+                          boxShadow: "0 0 4px rgba(0,0,0,0.5)",
+                          zIndex: 5,
+                          pointerEvents: "none",
+                        }}
+                        title={`${actor.name} - ${formatTimeDisplay(pos.time)}`}
+                      />
+                    );
+                  })}
+
                   {/* 演员位置 */}
                   {actors.map((actor) => {
                     const displayPosition = getActorDisplayPosition(actor);
+                    const canDrag =
+                      !isPreviewMode || (isPreviewMode && !isPlaying);
+
                     return (
                       <div
                         key={actor.id}
@@ -2155,19 +2392,17 @@ const StageEditor: React.FC = () => {
                           left: displayPosition.x,
                           top: displayPosition.y,
                           transform: "translate(-50%, -50%)",
-                          cursor: isPreviewMode
-                            ? "default"
-                            : isDragging
-                            ? "grabbing"
-                            : "grab",
-                          pointerEvents: isPreviewMode ? "none" : "auto",
+                          cursor: canDrag
+                            ? isDragging
+                              ? "grabbing"
+                              : "grab"
+                            : "default",
+                          pointerEvents: canDrag ? "auto" : "none",
                           zIndex: 10, // 确保演员在最上层，可以被交互
                         }}
-                        onClick={() =>
-                          !isPreviewMode && handleActorClick(actor)
-                        }
+                        onClick={() => canDrag && handleActorClick(actor)}
                         onMouseDown={(e) =>
-                          !isPreviewMode && handleMouseDown(e, actor)
+                          canDrag && handleMouseDown(e, actor)
                         }
                       >
                         <div

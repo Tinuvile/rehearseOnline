@@ -117,78 +117,27 @@ export const sampleDialogues: SampleDialogue[] = [
   },
 ];
 
-// 样例演员位置数据（逐帧移动轨迹）
+// 样例演员位置数据（关键帧移动轨迹）
 export const sampleActorPositions: SampleActorPosition[] = [
-  // 演员1的移动轨迹
+  // 演员1的移动轨迹 - 简化后只保留关键转折点
   { actorId: 1, time: 0, x: 200, y: 120 },
-  { actorId: 1, time: 2, x: 250, y: 150 },
-  { actorId: 1, time: 4, x: 300, y: 180 },
-  { actorId: 1, time: 6, x: 350, y: 200 },
   { actorId: 1, time: 8, x: 400, y: 220 },
-  { actorId: 1, time: 10, x: 420, y: 200 },
-  { actorId: 1, time: 12, x: 450, y: 180 },
-  { actorId: 1, time: 14, x: 480, y: 160 },
-  { actorId: 1, time: 16, x: 500, y: 140 },
-  { actorId: 1, time: 18, x: 520, y: 160 },
   { actorId: 1, time: 20, x: 540, y: 180 },
-  { actorId: 1, time: 22, x: 520, y: 200 },
-  { actorId: 1, time: 24, x: 500, y: 220 },
-  { actorId: 1, time: 26, x: 480, y: 240 },
   { actorId: 1, time: 28, x: 460, y: 220 },
-  { actorId: 1, time: 30, x: 440, y: 200 },
-  { actorId: 1, time: 32, x: 420, y: 180 },
-  { actorId: 1, time: 34, x: 400, y: 160 },
-  { actorId: 1, time: 36, x: 380, y: 140 },
-  { actorId: 1, time: 38, x: 360, y: 120 },
-  { actorId: 1, time: 40, x: 340, y: 100 },
   { actorId: 1, time: 42, x: 320, y: 120 },
 
-  // 演员2的移动轨迹
+  // 演员2的移动轨迹 - 简化后只保留关键转折点
   { actorId: 2, time: 0, x: 350, y: 200 },
-  { actorId: 2, time: 2, x: 330, y: 220 },
-  { actorId: 2, time: 4, x: 310, y: 240 },
-  { actorId: 2, time: 6, x: 290, y: 260 },
-  { actorId: 2, time: 8, x: 270, y: 280 },
   { actorId: 2, time: 10, x: 250, y: 300 },
-  { actorId: 2, time: 12, x: 270, y: 320 },
-  { actorId: 2, time: 14, x: 290, y: 300 },
-  { actorId: 2, time: 16, x: 310, y: 280 },
-  { actorId: 2, time: 18, x: 330, y: 260 },
   { actorId: 2, time: 20, x: 350, y: 240 },
-  { actorId: 2, time: 22, x: 370, y: 220 },
-  { actorId: 2, time: 24, x: 390, y: 200 },
-  { actorId: 2, time: 26, x: 410, y: 180 },
-  { actorId: 2, time: 28, x: 430, y: 160 },
   { actorId: 2, time: 30, x: 450, y: 140 },
-  { actorId: 2, time: 32, x: 470, y: 160 },
-  { actorId: 2, time: 34, x: 450, y: 180 },
-  { actorId: 2, time: 36, x: 430, y: 200 },
-  { actorId: 2, time: 38, x: 410, y: 220 },
-  { actorId: 2, time: 40, x: 390, y: 240 },
   { actorId: 2, time: 42, x: 370, y: 260 },
 
-  // 演员3的移动轨迹
+  // 演员3的移动轨迹 - 简化后只保留关键转折点
   { actorId: 3, time: 0, x: 150, y: 250 },
-  { actorId: 3, time: 2, x: 170, y: 270 },
-  { actorId: 3, time: 4, x: 190, y: 290 },
-  { actorId: 3, time: 6, x: 210, y: 310 },
-  { actorId: 3, time: 8, x: 230, y: 330 },
   { actorId: 3, time: 10, x: 250, y: 350 },
-  { actorId: 3, time: 12, x: 270, y: 330 },
-  { actorId: 3, time: 14, x: 290, y: 310 },
-  { actorId: 3, time: 16, x: 310, y: 290 },
-  { actorId: 3, time: 18, x: 330, y: 270 },
   { actorId: 3, time: 20, x: 350, y: 250 },
-  { actorId: 3, time: 22, x: 330, y: 230 },
-  { actorId: 3, time: 24, x: 310, y: 210 },
-  { actorId: 3, time: 26, x: 290, y: 190 },
-  { actorId: 3, time: 28, x: 270, y: 170 },
   { actorId: 3, time: 30, x: 250, y: 150 },
-  { actorId: 3, time: 32, x: 230, y: 130 },
-  { actorId: 3, time: 34, x: 210, y: 110 },
-  { actorId: 3, time: 36, x: 190, y: 130 },
-  { actorId: 3, time: 38, x: 170, y: 150 },
-  { actorId: 3, time: 40, x: 150, y: 170 },
   { actorId: 3, time: 42, x: 130, y: 190 },
 ];
 
