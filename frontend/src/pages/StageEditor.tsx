@@ -3017,7 +3017,7 @@ const StageEditor: React.FC = () => {
             </h3>
 
             {/* 台词显示面板 */}
-            <div style={{ marginBottom: 24 }}>
+            <div style={{ marginBottom: 24, minHeight: 280 }}>
               <DialoguePanel
                 currentTime={isPreviewMode ? previewCurrentTime : 0}
                 dialogues={samplePreviewData.dialogues}

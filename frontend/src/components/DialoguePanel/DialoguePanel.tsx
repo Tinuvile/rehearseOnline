@@ -237,7 +237,7 @@ const DialoguePanel: React.FC<DialoguePanelProps> = ({
   };
 
   return (
-    <div style={{ height: "100%", overflow: "auto" }}>
+    <div style={{ height: "100%", minHeight: 280, overflow: "auto" }}>
       <Typography.Title level={5} style={{ margin: "0 0 16px 0" }}>
         台词面板
         {isPreviewMode && (
@@ -252,7 +252,14 @@ const DialoguePanel: React.FC<DialoguePanelProps> = ({
         <Text strong style={{ fontSize: "12px", color: "#52c41a" }}>
           当前台词 ({formatTime(currentTime)})
         </Text>
-        <div style={{ marginTop: 8 }}>
+        <div
+          style={{
+            marginTop: 8,
+            minHeight: 120,
+            maxHeight: 120,
+            overflow: "auto",
+          }}
+        >
           {currentDialogues.length > 0 ? (
             currentDialogues.map((dialogue) =>
               renderDialogueCard(dialogue, true)
@@ -260,7 +267,14 @@ const DialoguePanel: React.FC<DialoguePanelProps> = ({
           ) : (
             <Card
               size="small"
-              style={{ textAlign: "center", padding: "12px 0" }}
+              style={{
+                textAlign: "center",
+                padding: "32px 12px",
+                height: 120,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
               <Text type="secondary" style={{ fontSize: "12px" }}>
                 当前时间无台词
@@ -275,7 +289,14 @@ const DialoguePanel: React.FC<DialoguePanelProps> = ({
         <Text strong style={{ fontSize: "12px", color: "#1890ff" }}>
           即将到来 (未来5秒)
         </Text>
-        <div style={{ marginTop: 8 }}>
+        <div
+          style={{
+            marginTop: 8,
+            minHeight: 100,
+            maxHeight: 100,
+            overflow: "auto",
+          }}
+        >
           {upcomingDialogues.length > 0 ? (
             upcomingDialogues.map((dialogue) =>
               renderDialogueCard(dialogue, false)
@@ -283,7 +304,14 @@ const DialoguePanel: React.FC<DialoguePanelProps> = ({
           ) : (
             <Card
               size="small"
-              style={{ textAlign: "center", padding: "12px 0" }}
+              style={{
+                textAlign: "center",
+                padding: "28px 12px",
+                height: 100,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
             >
               <Text type="secondary" style={{ fontSize: "12px" }}>
                 暂无即将到来的台词
