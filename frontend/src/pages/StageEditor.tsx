@@ -1837,8 +1837,28 @@ const StageEditor: React.FC = () => {
               </div>
             ))}
 
-            <div style={{ marginTop: "auto" }}>
-              <div style={{ marginBottom: 8, display: "flex", gap: 4 }}>
+            {/* AI建议区域 */}
+            <div style={{ marginTop: 16 }}>
+              <h4
+                style={{
+                  color: "#c0c0c0",
+                  fontSize: 12,
+                  marginBottom: 12,
+                  margin: "0 0 12px 0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                AI建议
+                {isLoadingAI && (
+                  <span style={{ fontSize: 10, color: "#a8c090" }}>
+                    分析中...
+                  </span>
+                )}
+              </h4>
+
+              <div style={{ marginBottom: 12, display: "flex", gap: 4 }}>
                 <Button
                   type="primary"
                   icon={<ThunderboltOutlined />}
@@ -1875,8 +1895,124 @@ const StageEditor: React.FC = () => {
                   AI分析
                 </Button>
               </div>
-              <div style={{ textAlign: "center", fontSize: 8, color: "#a5adce" /* Frappe 次要文本色 */ }}>
+
+              <div style={{ textAlign: "center", fontSize: 8, color: "#a5adce", marginBottom: 12 }}>
                 {isAIHealthy ? "🟢 AI服务正常" : "🔴 AI服务异常"}
+              </div>
+
+              {/* AI建议列表 */}
+              <div style={{ maxHeight: 300, overflowY: "auto" }}>
+                {aiSuggestions.length === 0 ? (
+                  <Card
+                    style={{
+                      background: "#1f1f1f",
+                      border: "1px solid #2a2a2a",
+                      marginBottom: 12,
+                      textAlign: "center",
+                      padding: "12px",
+                    }}
+                  >
+                    <p style={{ color: "#888", fontSize: 10, margin: 0 }}>
+                      {isLoadingAI
+                        ? "正在分析舞台数据..."
+                        : "暂无AI建议，点击上方按钮获取建议"}
+                    </p>
+                  </Card>
+                ) : (
+                  aiSuggestions.map((suggestion, index) => (
+                    <Card
+                      key={suggestion.id || index}
+                      style={{
+                        background: "#1f1f1f",
+                        border: "none",
+                        borderLeft: `3px solid ${aiService.getPriorityColor(
+                          suggestion.priority
+                        )}`,
+                        marginBottom: 8,
+                        padding: "8px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          marginBottom: 6,
+                        }}
+                      >
+                        <span
+                          style={{
+                            marginRight: 6,
+                            fontSize: 12,
+                          }}
+                        >
+                          {suggestion.icon ||
+                            aiService.getIconForSuggestionType(suggestion.type)}
+                        </span>
+                        <h5
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 500,
+                            color: "#f5f5f5",
+                            margin: 0,
+                            flex: 1,
+                          }}
+                        >
+                          {suggestion.type}
+                        </h5>
+                        <span
+                          style={{
+                            fontSize: 8,
+                            padding: "1px 4px",
+                            borderRadius: "3px",
+                            background: aiService.getPriorityColor(
+                              suggestion.priority
+                            ),
+                            color: "#fff",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {suggestion.priority}
+                        </span>
+                      </div>
+                      <p
+                        style={{
+                          color: "#c0c0c0",
+                          fontSize: 9,
+                          marginBottom: 6,
+                          margin: "0 0 6px 0",
+                          lineHeight: 1.3,
+                        }}
+                      >
+                        {suggestion.description}
+                      </p>
+                      {suggestion.specific_action && (
+                        <p
+                          style={{
+                            color: "#a8c090",
+                            fontSize: 8,
+                            marginBottom: 6,
+                            margin: "0 0 6px 0",
+                            fontStyle: "italic",
+                          }}
+                        >
+                          💡 {suggestion.specific_action}
+                        </p>
+                      )}
+                      <Button
+                        type="link"
+                        onClick={() => applyAISuggestion(suggestion)}
+                        style={{
+                          color: "#a8c090",
+                          fontSize: 9,
+                          padding: 0,
+                          height: "auto",
+                        }}
+                      >
+                        应用建议
+                      </Button>
+                    </Card>
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -2064,10 +2200,9 @@ const StageEditor: React.FC = () => {
                   background: "#ef9f76", /* Frappe 橙色 */
                   borderColor: "#ef9f76", /* Frappe 橙色 */
                   color: "#303446", /* Frappe 基础背景色 */
-                  fontSize: 10,
+                  fontSize: 12,
                   marginLeft: 8,
                 }}
-                size="small"
               >
                 调试
               </Button>
@@ -3711,163 +3846,7 @@ const StageEditor: React.FC = () => {
               </div>
             )}
 
-            {/* AI建议 */}
-            <div>
-              <h4
-                style={{
-                  color: "#c0c0c0",
-                  fontSize: 12,
-                  marginBottom: 12,
-                  margin: "0 0 12px 0",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                AI建议
-                {isLoadingAI && (
-                  <span style={{ fontSize: 10, color: "#a8c090" }}>
-                    分析中...
-                  </span>
-                )}
-              </h4>
 
-              {aiSuggestions.length === 0 ? (
-                <Card
-                  style={{
-                    background: "#1f1f1f",
-                    border: "1px solid #2a2a2a",
-                    marginBottom: 12,
-                    textAlign: "center",
-                    padding: "20px",
-                  }}
-                >
-                  <p style={{ color: "#888", fontSize: 10, margin: 0 }}>
-                    {isLoadingAI
-                      ? "正在分析舞台数据..."
-                      : "暂无AI建议，点击上方按钮获取建议"}
-                  </p>
-                </Card>
-              ) : (
-                aiSuggestions.map((suggestion, index) => (
-                  <Card
-                    key={suggestion.id || index}
-                    style={{
-                      background: "#1f1f1f",
-                      border: "none",
-                      borderLeft: `3px solid ${aiService.getPriorityColor(
-                        suggestion.priority
-                      )}`,
-                      marginBottom: 12,
-                      padding: "12px",
-                    }}
-                  >
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        marginBottom: 8,
-                      }}
-                    >
-                      <span
-                        style={{
-                          marginRight: 8,
-                          fontSize: 14,
-                        }}
-                      >
-                        {suggestion.icon ||
-                          aiService.getIconForSuggestionType(suggestion.type)}
-                      </span>
-                      <h5
-                        style={{
-                          fontSize: 12,
-                          fontWeight: 500,
-                          color: "#f5f5f5",
-                          margin: 0,
-                          flex: 1,
-                        }}
-                      >
-                        {suggestion.type}
-                      </h5>
-                      <span
-                        style={{
-                          fontSize: 8,
-                          padding: "2px 6px",
-                          borderRadius: "4px",
-                          background: aiService.getPriorityColor(
-                            suggestion.priority
-                          ),
-                          color: "#fff",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {suggestion.priority}
-                      </span>
-                    </div>
-                    <p
-                      style={{
-                        color: "#c0c0c0",
-                        fontSize: 10,
-                        marginBottom: 8,
-                        margin: "0 0 8px 0",
-                        lineHeight: 1.4,
-                      }}
-                    >
-                      {suggestion.description}
-                    </p>
-                    {suggestion.specific_action && (
-                      <p
-                        style={{
-                          color: "#a8c090",
-                          fontSize: 9,
-                          marginBottom: 8,
-                          margin: "0 0 8px 0",
-                          fontStyle: "italic",
-                        }}
-                      >
-                        💡 {suggestion.specific_action}
-                      </p>
-                    )}
-                    {suggestion.time_range && (
-                      <p
-                        style={{
-                          color: "#81a1c1",
-                          fontSize: 9,
-                          marginBottom: 8,
-                          margin: "0 0 8px 0",
-                        }}
-                      >
-                        ⏱️ {aiService.formatTimeRange(suggestion.time_range)}
-                      </p>
-                    )}
-                    {suggestion.affected_actors &&
-                      suggestion.affected_actors.length > 0 && (
-                        <p
-                          style={{
-                            color: "#e6b17a",
-                            fontSize: 9,
-                            marginBottom: 8,
-                            margin: "0 0 8px 0",
-                          }}
-                        >
-                          👥 涉及演员: {suggestion.affected_actors.join(", ")}
-                        </p>
-                      )}
-                    <Button
-                      type="link"
-                      onClick={() => applyAISuggestion(suggestion)}
-                      style={{
-                        color: "#a8c090",
-                        fontSize: 10,
-                        padding: 0,
-                      }}
-                    >
-                      应用建议
-                    </Button>
-                  </Card>
-                ))
-              )}
-            </div>
           </div>
         </Sider>
       </Layout>
