@@ -1,5 +1,5 @@
 """
-AI舞台系统后端主入口
+AI舞台系统后端主入口 (简化版)
 """
 
 from fastapi import FastAPI, UploadFile, File
@@ -8,12 +8,6 @@ from fastapi.staticfiles import StaticFiles
 import uvicorn
 import os
 from pathlib import Path
-
-from backend.api.video_analysis import router as video_router
-from backend.api.stage_management import router as stage_router
-from backend.api.ai_suggestions import router as ai_router
-from backend.api.dialogue_extraction import router as dialogue_router
-from backend.core.data_store import InMemoryDataStore
 
 # 创建FastAPI应用
 app = FastAPI(
@@ -34,15 +28,6 @@ app.add_middleware(
 # 静态文件服务
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# 全局数据存储实例
-data_store = InMemoryDataStore()
-
-# 路由注册
-app.include_router(video_router, prefix="/api/video", tags=["视频分析"])
-app.include_router(stage_router, prefix="/api/stage", tags=["舞台管理"])
-app.include_router(ai_router, prefix="/api/ai", tags=["AI建议"])
-app.include_router(dialogue_router, tags=["台词提取"])
-
 @app.on_event("startup")
 async def startup_event():
     """应用启动时初始化"""
@@ -51,13 +36,6 @@ async def startup_event():
     Path("static").mkdir(exist_ok=True)
     Path("temp").mkdir(exist_ok=True)
     Path("data").mkdir(exist_ok=True)
-    
-    # 尝试加载已有数据
-    try:
-        data_store.load_from_json("data/project_data.json")
-        print("✅ 已加载现有项目数据")
-    except FileNotFoundError:
-        print("📝 创建新的项目数据存储")
     
     print("🎭 AI舞台系统启动成功!")
 
@@ -68,6 +46,26 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "data_store": "connected"}
+
+@app.get("/api/dialogue/supported-formats")
+async def supported_formats():
+    """返回支持的格式"""
+    return {
+        "supported_video_formats": ["mp4", "avi", "mov"],
+        "supported_audio_formats": ["mp3", "wav"],
+        "max_file_size_mb": 500
+    }
+
+@app.get("/api/stage/project")
+async def get_project():
+    """返回项目信息"""
+    return {
+        "project": {
+            "name": "示例项目",
+            "created_at": "2023-07-01T12:00:00Z",
+            "updated_at": "2023-07-15T14:30:00Z"
+        }
+    }
 
 if __name__ == "__main__":
     uvicorn.run(

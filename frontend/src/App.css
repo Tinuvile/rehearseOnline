@@ -1,8 +1,25 @@
 /* AI Stage Planner - 全局样式 */
+
+/* 导入字体 */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+:root {
+  --font-primary: 'Inter', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+  --font-code: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  
+  /* New color scheme */
+  --color-accent: #e84500;
+  --color-background: #252c23;
+  --color-background-lighter: #323b33;
+  --color-text: #d9d6ce;
+  --color-border: #3a443a;
+}
+
 .App {
   text-align: left;
-  background-color: #0a0a0a;
-  color: #f5f5f5;
+  background-color: var(--color-background);
+  color: var(--color-text);
   min-height: 100vh;
   height: auto;
   overflow: visible;
@@ -20,13 +37,13 @@ body {
   height: auto;
   overflow-x: hidden;
   overflow-y: auto;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  font-family: var(--font-primary);
+  font-size: 14px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #0a0a0a;
-  color: #f5f5f5;
+  background-color: var(--color-background);
+  color: var(--color-text);
 }
 
 #root {
@@ -34,177 +51,279 @@ body {
   min-height: 100vh;
 }
 
+/* 字体样式优化 */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-primary);
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+h1 {
+  font-size: 2.5rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+}
+
+h4 {
+  font-size: 1.25rem;
+}
+
+h5 {
+  font-size: 1.125rem;
+}
+
+h6 {
+  font-size: 1rem;
+}
+
+p {
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+button, input, select, textarea {
+  font-family: var(--font-primary);
+}
+
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+  font-family: var(--font-code);
+}
+
+/* 面板布局样式 */
+.panels-container {
+  height: calc(100vh - 64px - 120px);
+  padding: 16px;
+}
+
+.panel {
+  background-color: var(--color-background-lighter);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.panel-header {
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text);
+  background-color: var(--color-background-lighter);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.panel-content {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+  height: calc(100% - 40px);
+}
+
+.timeline-container {
+  height: 120px;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-background-lighter);
+  padding: 16px;
+}
+
+.main-layout .content-area {
+  padding: 0;
+  height: calc(100vh - 64px - 120px);
+  overflow: hidden;
 }
 
 /* Antd 组件深色主题重写 */
 .ant-layout {
-  background-color: #0a0a0a !important;
+  background-color: var(--color-background) !important;
   height: auto !important;
   min-height: 100vh !important;
 }
 
 .ant-layout-header {
-  background-color: #151515 !important;
-  border-bottom: 1px solid #2a2a2a;
+  background-color: var(--color-background-lighter) !important;
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* 字体重写 */
+.ant-typography, .ant-card-head-title, .ant-btn, 
+.ant-menu-title-content, .ant-dropdown-menu-title-content, 
+.ant-select, .ant-input, .ant-form-item-label > label {
+  font-family: var(--font-primary) !important;
+  letter-spacing: -0.01em;
+}
+
+.ant-card-head-title, .ant-card-meta-title {
+  font-weight: 600 !important;
+}
+
+.ant-btn {
+  font-weight: 500;
 }
 
 .ant-layout-sider {
-  background-color: #151515 !important;
+  background-color: var(--color-background-lighter) !important;
 }
 
 .ant-layout-content {
-  background-color: #0a0a0a !important;
+  background-color: var(--color-background) !important;
   height: auto !important;
   overflow: visible !important;
 }
 
 .ant-card {
-  background-color: #151515 !important;
-  border: 1px solid #2a2a2a !important;
-  color: #f5f5f5 !important;
+  background-color: var(--color-background-lighter) !important;
+  border: 1px solid var(--color-border) !important;
+  color: var(--color-text) !important;
 }
 
 .ant-card-body {
-  color: #f5f5f5 !important;
+  color: var(--color-text) !important;
 }
 
 .ant-input {
-  background-color: #151515 !important;
-  border-color: #2a2a2a !important;
-  color: #f5f5f5 !important;
+  background-color: var(--color-background-lighter) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text) !important;
 }
 
 .ant-input:hover,
 .ant-input:focus {
-  border-color: #a8c090 !important;
-  box-shadow: 0 0 0 2px rgba(168, 192, 144, 0.2) !important;
+  border-color: var(--color-accent) !important;
+  box-shadow: 0 0 0 2px rgba(232, 69, 0, 0.2) !important;
 }
 
 .ant-input::placeholder {
-  color: #909090 !important;
+  color: rgba(217, 214, 206, 0.6) !important;
 }
 
 .ant-select {
-  background-color: #151515 !important;
+  background-color: var(--color-background-lighter) !important;
 }
 
 .ant-select .ant-select-selector {
-  background-color: #151515 !important;
-  border-color: #2a2a2a !important;
-  color: #f5f5f5 !important;
+  background-color: var(--color-background-lighter) !important;
+  border-color: var(--color-border) !important;
+  color: var(--color-text) !important;
 }
 
 .ant-select-dropdown {
-  background-color: #151515 !important;
-  border: 1px solid #2a2a2a !important;
+  background-color: var(--color-background-lighter) !important;
+  border: 1px solid var(--color-border) !important;
 }
 
 .ant-select-item {
-  color: #f5f5f5 !important;
+  color: var(--color-text) !important;
 }
 
 .ant-select-item:hover {
-  background-color: #2a2a2a !important;
+  background-color: rgba(232, 69, 0, 0.1) !important;
 }
 
 .ant-select-item-option-selected {
-  background-color: #a8c090 !important;
-  color: #1a1a1a !important;
+  background-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
 }
 
 .ant-btn {
-  background-color: #151515;
-  border-color: #2a2a2a;
-  color: #f5f5f5;
+  background-color: var(--color-background-lighter);
+  border-color: var(--color-border);
+  color: var(--color-text);
 }
 
 .ant-btn:hover {
-  background-color: #1f1f1f !important;
-  border-color: #a8c090 !important;
-  color: #a8c090 !important;
+  background-color: rgba(232, 69, 0, 0.1) !important;
+  border-color: var(--color-accent) !important;
+  color: var(--color-accent) !important;
 }
 
 .ant-btn-primary {
-  background-color: #a8c090 !important;
-  border-color: #a8c090 !important;
-  color: #1a1a1a !important;
+  background-color: var(--color-accent) !important;
+  border-color: var(--color-accent) !important;
+  color: var(--color-text) !important;
 }
 
 .ant-btn-primary:hover {
-  background-color: #9bb080 !important;
-  border-color: #9bb080 !important;
-  color: #1a1a1a !important;
+  background-color: #d13e00 !important;
+  border-color: #d13e00 !important;
+  color: var(--color-text) !important;
 }
 
 .ant-progress-bg {
-  background-color: #a8c090 !important;
+  background-color: var(--color-accent) !important;
 }
 
 .ant-upload-dragger {
   background-color: transparent !important;
-  border: 1px dashed #2a2a2a !important;
+  border: 1px dashed var(--color-border) !important;
 }
 
 .ant-upload-dragger:hover {
-  border-color: #a8c090 !important;
+  border-color: var(--color-accent) !important;
 }
 
 .ant-upload-dragger .ant-upload-text {
-  color: #f5f5f5 !important;
+  color: var(--color-text) !important;
 }
 
 .ant-upload-dragger .ant-upload-hint {
-  color: #c0c0c0 !important;
+  color: rgba(217, 214, 206, 0.8) !important;
 }
 
 .ant-pagination-item {
-  background-color: #151515 !important;
-  border-color: #2a2a2a !important;
+  background-color: var(--color-background-lighter) !important;
+  border-color: var(--color-border) !important;
 }
 
 .ant-pagination-item a {
-  color: #f5f5f5 !important;
+  color: var(--color-text) !important;
 }
 
 .ant-pagination-item:hover {
-  border-color: #a8c090 !important;
+  border-color: var(--color-accent) !important;
 }
 
 .ant-pagination-item:hover a {
-  color: #a8c090 !important;
+  color: var(--color-accent) !important;
 }
 
 .ant-pagination-item-active {
-  background-color: #a8c090 !important;
-  border-color: #a8c090 !important;
+  background-color: var(--color-accent) !important;
+  border-color: var(--color-accent) !important;
 }
 
 .ant-pagination-item-active a {
-  color: #1a1a1a !important;
+  color: var(--color-text) !important;
 }
 
 .ant-pagination-prev,
 .ant-pagination-next {
-  background-color: #151515 !important;
-  border-color: #2a2a2a !important;
+  background-color: var(--color-background-lighter) !important;
+  border-color: var(--color-border) !important;
 }
 
 .ant-pagination-prev:hover,
 .ant-pagination-next:hover {
-  border-color: #a8c090 !important;
+  border-color: var(--color-accent) !important;
 }
 
 .ant-pagination-prev .ant-pagination-item-link,
 .ant-pagination-next .ant-pagination-item-link {
-  color: #f5f5f5 !important;
+  color: var(--color-text) !important;
 }
 
 .ant-pagination-prev:hover .ant-pagination-item-link,
 .ant-pagination-next:hover .ant-pagination-item-link {
-  color: #a8c090 !important;
+  color: var(--color-accent) !important;
 }
 
 /* 自定义滚动条 */
@@ -214,16 +333,16 @@ code {
 }
 
 ::-webkit-scrollbar-track {
-  background: #151515;
+  background: var(--color-background-lighter);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2a2a2a;
+  background: var(--color-border);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8c090;
+  background: var(--color-accent);
 }
 
 /* 舞台编辑器特定样式 */
@@ -242,7 +361,7 @@ code {
 }
 
 .stage-actor.selected {
-  box-shadow: 0 0 0 2px #a8c090;
+  box-shadow: 0 0 0 2px var(--color-accent);
 }
 
 .timeline-segment {
@@ -261,7 +380,7 @@ code {
 
 .ai-suggestion-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(168, 192, 144, 0.15);
+  box-shadow: 0 4px 12px rgba(232, 69, 0, 0.15);
 }
 
 /* 响应式设计 */
@@ -307,12 +426,12 @@ code {
 
 /* 工具提示样式 */
 .ant-tooltip-inner {
-  background-color: #1f1f1f !important;
-  color: #f5f5f5 !important;
-  border: 1px solid #2a2a2a !important;
+  background-color: var(--color-background-lighter) !important;
+  color: var(--color-text) !important;
+  border: 1px solid var(--color-border) !important;
 }
 
 .ant-tooltip-arrow::before {
-  background-color: #1f1f1f !important;
-  border: 1px solid #2a2a2a !important;
+  background-color: var(--color-background-lighter) !important;
+  border: 1px solid var(--color-border) !important;
 }

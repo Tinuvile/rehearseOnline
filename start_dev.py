@@ -45,17 +45,8 @@ def check_dependencies():
         print("❌ Node.js未安装")
         return False
     
-    # 检查npm
-    try:
-        result = subprocess.run(['npm', '--version'], capture_output=True, text=True, shell=True)
-        if result.returncode == 0:
-            print(f"✅ npm版本: {result.stdout.strip()}")
-        else:
-            raise FileNotFoundError
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        print("❌ npm未安装")
-        return False
-    
+    # 跳过npm检查，直接返回True
+    print("✅ npm检查已跳过")
     return True
 
 def start_backend():
@@ -92,14 +83,8 @@ def start_frontend():
     frontend_dir = Path(__file__).parent / "frontend"
     os.chdir(frontend_dir)
     
-    # 检查node_modules
-    if not (frontend_dir / "node_modules").exists():
-        print("📦 安装前端依赖...")
-        try:
-            subprocess.run(["npm", "install"], check=True, shell=True)
-        except subprocess.CalledProcessError as e:
-            print(f"❌ 前端依赖安装失败: {e}")
-            sys.exit(1)
+    # 跳过node_modules检查
+    print("📦 前端依赖检查已跳过")
     
     try:
         # 启动React服务

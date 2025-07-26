@@ -102,13 +102,13 @@ const ProjectWorkspace: React.FC = () => {
 
   return (
     <Layout
-      style={{ minHeight: "100vh", height: "auto", background: "#0a0a0a" }}
+      style={{ minHeight: "100vh", height: "auto", background: "var(--color-background)" }}
     >
       <StageHeader />
 
       <Layout>
         {/* 左侧导航栏 */}
-        <Sider width={240} style={{ background: "#151515" }}>
+        <Sider width={240} style={{ background: "var(--color-background-lighter)" }}>
           <div style={{ padding: 24 }}>
             <nav>
               <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
@@ -118,7 +118,7 @@ const ProjectWorkspace: React.FC = () => {
                       style={{
                         display: "flex",
                         alignItems: "center",
-                        color: item.active ? "#a8c090" : "#c0c0c0",
+                        color: item.active ? "var(--color-accent)" : "rgba(217, 214, 206, 0.8)",
                         background: "none",
                         border: "none",
                         cursor: "pointer",
@@ -148,7 +148,7 @@ const ProjectWorkspace: React.FC = () => {
         </Sider>
 
         {/* 主内容区 */}
-        <Content style={{ background: "#0a0a0a", padding: "48px" }}>
+        <Content style={{ background: "var(--color-background)", padding: "48px" }}>
           {/* 页面标题和新建按钮 */}
           <div style={{ marginBottom: 32 }}>
             <div
@@ -163,7 +163,7 @@ const ProjectWorkspace: React.FC = () => {
                 style={{
                   fontSize: 30,
                   fontWeight: 500,
-                  color: "#f5f5f5",
+                  color: "var(--color-text)",
                   margin: 0,
                 }}
               >
@@ -173,9 +173,9 @@ const ProjectWorkspace: React.FC = () => {
                 type="primary"
                 icon={<PlusOutlined />}
                 style={{
-                  background: "#a8c090",
-                  borderColor: "#a8c090",
-                  color: "#1a1a1a",
+                  background: "var(--color-accent)",
+                  borderColor: "var(--color-accent)",
+                  color: "var(--color-text)",
                   fontSize: 14,
                   height: "auto",
                   padding: "12px 24px",
@@ -195,7 +195,7 @@ const ProjectWorkspace: React.FC = () => {
                     left: 12,
                     top: "50%",
                     transform: "translateY(-50%)",
-                    color: "#909090",
+                    color: "rgba(217, 214, 206, 0.6)",
                     fontSize: 12,
                   }}
                 />
@@ -204,9 +204,9 @@ const ProjectWorkspace: React.FC = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   style={{
-                    background: "#151515",
-                    border: "1px solid #2a2a2a",
-                    color: "#f5f5f5",
+                    background: "var(--color-background-lighter)",
+                    border: "1px solid var(--color-border)",
+                    color: "var(--color-text)",
                     paddingLeft: 40,
                     fontSize: 14,
                   }}
@@ -237,7 +237,7 @@ const ProjectWorkspace: React.FC = () => {
           {/* 统计卡片 */}
           <Row gutter={24} style={{ marginBottom: 32 }}>
             <Col span={6}>
-              <Card style={{ background: "#151515", border: "none" }}>
+              <Card style={{ background: "var(--color-background-lighter)", border: "none" }}>
                 <div
                   style={{
                     display: "flex",
@@ -246,21 +246,21 @@ const ProjectWorkspace: React.FC = () => {
                     marginBottom: 16,
                   }}
                 >
-                  <h3 style={{ color: "#c0c0c0", fontSize: 14, margin: 0 }}>
+                  <h3 style={{ color: "rgba(217, 214, 206, 0.8)", fontSize: 14, margin: 0 }}>
                     项目总数
                   </h3>
                   <div
                     style={{
                       width: 40,
                       height: 40,
-                      background: "#1f1f1f",
+                      background: "var(--color-background)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                     }}
                   >
                     <FolderOpenOutlined
-                      style={{ fontSize: 18, color: "#a8c090" }}
+                      style={{ fontSize: 18, color: "var(--color-accent)" }}
                     />
                   </div>
                 </div>
@@ -268,7 +268,7 @@ const ProjectWorkspace: React.FC = () => {
                   style={{
                     fontSize: 30,
                     fontWeight: 500,
-                    color: "#f5f5f5",
+                    color: "var(--color-text)",
                     margin: 0,
                   }}
                 >
@@ -277,7 +277,7 @@ const ProjectWorkspace: React.FC = () => {
               </Card>
             </Col>
             <Col span={6}>
-              <Card style={{ background: "#151515", border: "none" }}>
+              <Card style={{ background: "var(--color-background-lighter)", border: "none" }}>
                 <div
                   style={{
                     display: "flex",
@@ -286,21 +286,21 @@ const ProjectWorkspace: React.FC = () => {
                     marginBottom: 16,
                   }}
                 >
-                  <h3 style={{ color: "#c0c0c0", fontSize: 14, margin: 0 }}>
+                  <h3 style={{ color: "rgba(217, 214, 206, 0.8)", fontSize: 14, margin: 0 }}>
                     进行中项目
                   </h3>
                   <div
                     style={{
                       width: 40,
                       height: 40,
-                      background: "#1f1f1f",
+                      background: "var(--color-background)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                     }}
                   >
                     <LoadingOutlined
-                      style={{ fontSize: 18, color: "#a8c090" }}
+                      style={{ fontSize: 18, color: "var(--color-accent)" }}
                     />
                   </div>
                 </div>
@@ -308,7 +308,7 @@ const ProjectWorkspace: React.FC = () => {
                   style={{
                     fontSize: 30,
                     fontWeight: 500,
-                    color: "#f5f5f5",
+                    color: "var(--color-text)",
                     margin: 0,
                   }}
                 >
@@ -317,7 +317,7 @@ const ProjectWorkspace: React.FC = () => {
               </Card>
             </Col>
             <Col span={6}>
-              <Card style={{ background: "#151515", border: "none" }}>
+              <Card style={{ background: "var(--color-background-lighter)", border: "none" }}>
                 <div
                   style={{
                     display: "flex",
@@ -326,21 +326,21 @@ const ProjectWorkspace: React.FC = () => {
                     marginBottom: 16,
                   }}
                 >
-                  <h3 style={{ color: "#c0c0c0", fontSize: 14, margin: 0 }}>
+                  <h3 style={{ color: "rgba(217, 214, 206, 0.8)", fontSize: 14, margin: 0 }}>
                     已完成项目
                   </h3>
                   <div
                     style={{
                       width: 40,
                       height: 40,
-                      background: "#1f1f1f",
+                      background: "var(--color-background)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                     }}
                   >
                     <CheckCircleOutlined
-                      style={{ fontSize: 18, color: "#a8c090" }}
+                      style={{ fontSize: 18, color: "var(--color-accent)" }}
                     />
                   </div>
                 </div>
@@ -348,7 +348,7 @@ const ProjectWorkspace: React.FC = () => {
                   style={{
                     fontSize: 30,
                     fontWeight: 500,
-                    color: "#f5f5f5",
+                    color: "var(--color-text)",
                     margin: 0,
                   }}
                 >
@@ -357,7 +357,7 @@ const ProjectWorkspace: React.FC = () => {
               </Card>
             </Col>
             <Col span={6}>
-              <Card style={{ background: "#151515", border: "none" }}>
+              <Card style={{ background: "var(--color-background-lighter)", border: "none" }}>
                 <div
                   style={{
                     display: "flex",
@@ -366,27 +366,27 @@ const ProjectWorkspace: React.FC = () => {
                     marginBottom: 16,
                   }}
                 >
-                  <h3 style={{ color: "#c0c0c0", fontSize: 14, margin: 0 }}>
+                  <h3 style={{ color: "rgba(217, 214, 206, 0.8)", fontSize: 14, margin: 0 }}>
                     已归档项目
                   </h3>
                   <div
                     style={{
                       width: 40,
                       height: 40,
-                      background: "#1f1f1f",
+                      background: "var(--color-background)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                     }}
                   >
-                    <InboxOutlined style={{ fontSize: 18, color: "#a8c090" }} />
+                    <InboxOutlined style={{ fontSize: 18, color: "var(--color-accent)" }} />
                   </div>
                 </div>
                 <p
                   style={{
                     fontSize: 30,
                     fontWeight: 500,
-                    color: "#f5f5f5",
+                    color: "var(--color-text)",
                     margin: 0,
                   }}
                 >
@@ -410,7 +410,7 @@ const ProjectWorkspace: React.FC = () => {
                 style={{
                   fontSize: 20,
                   fontWeight: 500,
-                  color: "#f5f5f5",
+                  color: "var(--color-text)",
                   margin: 0,
                 }}
               >
@@ -422,9 +422,14 @@ const ProjectWorkspace: React.FC = () => {
                   icon={<AppstoreOutlined />}
                   onClick={() => setViewMode("grid")}
                   style={{
-                    background: viewMode === "grid" ? "#151515" : "#151515",
-                    borderColor: "#2a2a2a",
-                    color: viewMode === "grid" ? "#a8c090" : "#909090",
+                    background: "var(--color-background-lighter)",
+                    borderColor: "var(--color-border)",
+                    color: viewMode === "grid" ? "var(--color-accent)" : "rgba(217, 214, 206, 0.6)",
+                    width: 40,
+                    height: 40,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 />
                 <Button
@@ -432,23 +437,39 @@ const ProjectWorkspace: React.FC = () => {
                   icon={<UnorderedListOutlined />}
                   onClick={() => setViewMode("list")}
                   style={{
-                    background: viewMode === "list" ? "#151515" : "#151515",
-                    borderColor: "#2a2a2a",
-                    color: viewMode === "list" ? "#a8c090" : "#909090",
+                    background: "var(--color-background-lighter)",
+                    borderColor: "var(--color-border)",
+                    color: viewMode === "list" ? "var(--color-accent)" : "rgba(217, 214, 206, 0.6)",
+                    width: 40,
+                    height: 40,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 />
               </div>
             </div>
 
-            <Row gutter={24}>
+            <Row gutter={[24, 24]}>
               {projects.map((project) => (
-                <Col span={8} key={project.id} style={{ marginBottom: 24 }}>
+                <Col 
+                  key={project.id}
+                  xs={24}
+                  sm={12}
+                  md={8}
+                  lg={8}
+                  xl={6}
+                  style={{ marginBottom: 0 }}
+                >
                   <Card
                     hoverable
                     style={{
-                      background: "#151515",
-                      border: "none",
+                      background: "var(--color-background-lighter)",
+                      border: "1px solid var(--color-border)",
+                      borderRadius: "8px",
+                      height: "100%",
                       cursor: "pointer",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
                     }}
                     bodyStyle={{ padding: 0 }}
                     onClick={() => navigate(`/project/${project.id}/editor`)}
@@ -470,12 +491,12 @@ const ProjectWorkspace: React.FC = () => {
                             right: 12,
                             background:
                               project.status === "active"
-                                ? "#a8c090"
-                                : "#7fb069",
-                            color: "#1a1a1a",
+                                ? "var(--color-accent)"
+                                : "#d13e00",
+                            color: "var(--color-text)",
                             padding: "4px 8px",
                             fontSize: 10,
-                            borderRadius: 2,
+                            borderRadius: 4,
                           }}
                         >
                           {project.status === "active" ? "进行中" : "已完成"}
@@ -483,12 +504,12 @@ const ProjectWorkspace: React.FC = () => {
                       </div>
                     }
                   >
-                    <div style={{ padding: 24 }}>
+                    <div style={{ padding: 20 }}>
                       <h3
                         style={{
-                          fontSize: 14,
+                          fontSize: 16,
                           fontWeight: 500,
-                          color: "#f5f5f5",
+                          color: "var(--color-text)",
                           marginBottom: 8,
                           margin: 0,
                         }}
@@ -497,8 +518,8 @@ const ProjectWorkspace: React.FC = () => {
                       </h3>
                       <p
                         style={{
-                          color: "#909090",
-                          fontSize: 10,
+                          color: "rgba(217, 214, 206, 0.6)",
+                          fontSize: 12,
                           marginBottom: 16,
                           margin: "8px 0 16px 0",
                         }}
@@ -516,17 +537,17 @@ const ProjectWorkspace: React.FC = () => {
                           <ClockCircleOutlined
                             style={{
                               fontSize: 12,
-                              color: "#909090",
+                              color: "rgba(217, 214, 206, 0.6)",
                               marginRight: 8,
                             }}
                           />
-                          <span style={{ color: "#909090", fontSize: 10 }}>
+                          <span style={{ color: "rgba(217, 214, 206, 0.6)", fontSize: 12 }}>
                             上次编辑：{project.lastEdit}
                           </span>
                         </div>
                         <Button
                           type="link"
-                          style={{ color: "#a8c090", fontSize: 12, padding: 0 }}
+                          style={{ color: "var(--color-accent)", fontSize: 12, padding: 0 }}
                         >
                           查看详情
                         </Button>

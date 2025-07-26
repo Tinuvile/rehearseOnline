@@ -66,47 +66,49 @@ const MainLayout: React.FC = () => {
           </div>
         ) : (
           // 有视频时显示四面板布局
-          <Row gutter={[16, 16]} style={{ height: "100%", margin: 0 }}>
-            {/* 左上：台词面板 */}
-            <Col span={12} style={{ height: "calc(50% - 8px)" }}>
-              <div className="panel">
-                <div className="panel-header">台词编辑器</div>
-                <div className="panel-content">
-                  <ScriptPanel />
+          <div className="panels-container" style={{ height: "100%", padding: "16px" }}>
+            <Row gutter={[16, 16]} style={{ height: "100%", margin: 0 }}>
+              {/* 左上：台词面板 */}
+              <Col span={12} style={{ height: "50%" }}>
+                <div className="panel" style={{ height: "100%" }}>
+                  <div className="panel-header">台词编辑器</div>
+                  <div className="panel-content" style={{ height: "calc(100% - 40px)" }}>
+                    <ScriptPanel />
+                  </div>
                 </div>
-              </div>
-            </Col>
+              </Col>
 
-            {/* 右上：2D舞台视图 */}
-            <Col span={12} style={{ height: "calc(50% - 8px)" }}>
-              <div className="panel">
-                <div className="panel-header">2D舞台视图</div>
-                <div className="panel-content">
-                  <StageView />
+              {/* 右上：2D舞台视图 */}
+              <Col span={12} style={{ height: "50%" }}>
+                <div className="panel" style={{ height: "100%" }}>
+                  <div className="panel-header">2D舞台视图</div>
+                  <div className="panel-content" style={{ height: "calc(100% - 40px)" }}>
+                    <StageView />
+                  </div>
                 </div>
-              </div>
-            </Col>
+              </Col>
 
-            {/* 左下：灯光面板 */}
-            <Col span={12} style={{ height: "calc(50% - 8px)" }}>
-              <div className="panel">
-                <div className="panel-header">灯光控制</div>
-                <div className="panel-content">
-                  <LightingPanel />
+              {/* 左下：灯光面板 */}
+              <Col span={12} style={{ height: "50%" }}>
+                <div className="panel" style={{ height: "100%" }}>
+                  <div className="panel-header">灯光控制</div>
+                  <div className="panel-content" style={{ height: "calc(100% - 40px)" }}>
+                    <LightingPanel />
+                  </div>
                 </div>
-              </div>
-            </Col>
+              </Col>
 
-            {/* 右下：音乐面板 */}
-            <Col span={12} style={{ height: "calc(50% - 8px)" }}>
-              <div className="panel">
-                <div className="panel-header">音乐控制</div>
-                <div className="panel-content">
-                  <MusicPanel />
+              {/* 右下：音乐面板 */}
+              <Col span={12} style={{ height: "50%" }}>
+                <div className="panel" style={{ height: "100%" }}>
+                  <div className="panel-header">音乐控制</div>
+                  <div className="panel-content" style={{ height: "calc(100% - 40px)" }}>
+                    <MusicPanel />
+                  </div>
                 </div>
-              </div>
-            </Col>
-          </Row>
+              </Col>
+            </Row>
+          </div>
         )}
       </Content>
 

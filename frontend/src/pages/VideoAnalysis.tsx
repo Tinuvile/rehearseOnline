@@ -262,21 +262,21 @@ const VideoAnalysis: React.FC = () => {
   const getStepStatusColor = (status: string) => {
     switch (status) {
       case "completed":
-        return "#a8c090";
+        return "var(--color-accent)";
       case "processing":
-        return "#a8c090";
+        return "var(--color-accent)";
       default:
-        return "#909090";
+        return "rgba(217, 214, 206, 0.6)";
     }
   };
 
   return (
     <Layout
-      style={{ minHeight: "100vh", height: "auto", background: "#0a0a0a" }}
+      style={{ minHeight: "100vh", height: "auto", background: "var(--color-background)" }}
     >
       <StageHeader />
 
-      <Content style={{ background: "#0a0a0a", padding: "48px" }}>
+      <Content style={{ background: "var(--color-background)", padding: "48px" }}>
         {/* 舞台标注界面 */}
         {showStageAnnotation && currentVideoFile && (
           <div
@@ -300,64 +300,175 @@ const VideoAnalysis: React.FC = () => {
             <div
               style={{
                 display: "flex",
+                justifyContent: "space-between",
                 alignItems: "center",
-                marginBottom: 16,
               }}
             >
-              <Button
-                type="text"
-                onClick={() => navigate("/workspace")}
-                style={{
-                  color: "#c0c0c0",
-                  fontSize: 12,
-                  padding: "4px 8px",
-                  marginRight: 16,
-                }}
-              >
-                ← 返回
-              </Button>
               <h2
                 style={{
                   fontSize: 30,
                   fontWeight: 500,
-                  color: "#f5f5f5",
+                  color: "var(--color-text)",
                   margin: 0,
                 }}
               >
-                视频分析
+                视频台词分析
               </h2>
+              <Button
+                type="primary"
+                icon={<ArrowRightOutlined />}
+                onClick={enterStageEditor}
+                disabled={!uploadResult}
+                style={{
+                  background: "var(--color-accent)",
+                  borderColor: "var(--color-accent)",
+                }}
+              >
+                进入舞台编辑器
+              </Button>
             </div>
-            <p
-              style={{
-                color: "#c0c0c0",
-                fontSize: 14,
-                margin: 0,
-                marginLeft: 60,
-              }}
+
+            {/* 提示信息 */}
+            {!hasFile && !isUploading && !uploadResult && (
+              <Alert
+                message="请上传一个视频文件进行舞台和台词分析"
+                description="支持MP4、MOV等常见视频格式，推荐分辨率不低于720p。上传后系统将自动进行台词识别和舞台元素提取。"
+                type="info"
+                style={{ margin: "24px 0" }}
+              />
+            )}
+
+            {/* 步骤指示器 */}
+            <Card
+              style={{ marginTop: 24, background: "var(--color-background-lighter)", border: "1px solid var(--color-border)" }}
             >
-              上传舞台视频，AI将自动分析舞台布局和表演元素
-            </p>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-around",
+                  marginBottom: 16,
+                }}
+              >
+                {analysisSteps.map((step, index) => (
+                  <div
+                    key={step.id}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      width: "20%",
+                      position: "relative",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 24,
+                        color: "var(--color-text)",
+                        background:
+                          step.status === "completed"
+                            ? "var(--color-accent)"
+                            : step.status === "processing"
+                            ? "rgba(232, 69, 0, 0.1)"
+                            : "var(--color-border)",
+                        transition: "all 0.3s",
+                      }}
+                    >
+                      {step.status === "completed" ? (
+                        <CheckCircleOutlined />
+                      ) : step.status === "processing" ? (
+                        <LoadingOutlined />
+                      ) : (
+                        step.icon
+                      )}
+                    </div>
+                    <p
+                      style={{
+                        marginTop: 8,
+                        color: getStepStatusColor(step.status),
+                      }}
+                    >
+                      {step.name}
+                    </p>
+                    {index < analysisSteps.length - 1 && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: 24,
+                          right: "-40%",
+                          width: "80%",
+                          height: 2,
+                          background:
+                            step.status === "completed"
+                              ? "var(--color-accent)"
+                              : "var(--color-border)",
+                          transition: "all 0.3s",
+                        }}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            <Divider style={{ margin: "24px 0", borderColor: "var(--color-border)" }} />
           </div>
         )}
 
         {/* 上传区域 */}
-        {!showStageAnnotation && (
-          <Card
-            style={{
-              background: "#151515",
-              border: "none",
-              marginBottom: 48,
-              padding: "48px",
-            }}
-          >
-            {/* 上传参数配置 */}
-            {!hasFile && (
-              <div style={{ marginBottom: 32 }}>
+        {!showStageAnnotation && !isUploading && !uploadResult && (
+          <Row gutter={24}>
+            <Col span={16}>
+              <Card
+                style={{ 
+                  height: "100%", 
+                  background: "var(--color-background-lighter)", 
+                  border: hasFile 
+                    ? "1px dashed var(--color-accent)"
+                    : "1px dashed var(--color-border)",
+                }}
+              >
+                <Dragger
+                  accept=".mp4,.mov,.avi,.wmv"
+                  beforeUpload={handleUpload}
+                  maxCount={1}
+                  fileList={[]}
+                  style={{ background: "transparent" }}
+                >
+                  <p className="ant-upload-drag-icon">
+                    {hasFile ? (
+                      <PlayCircleOutlined style={{ fontSize: 30, color: "var(--color-accent)" }} />
+                    ) : (
+                      <InboxOutlined style={{ fontSize: 30, color: "var(--color-accent)" }} />
+                    )}
+                  </p>
+                  <p className="ant-upload-text">
+                    {hasFile ? fileName : "点击或拖拽文件到此区域上传"}
+                  </p>
+                  <p className="ant-upload-hint">
+                    支持MP4、MOV等常见视频格式，推荐分辨率不低于720p
+                  </p>
+                </Dragger>
+              </Card>
+            </Col>
+            <Col span={8}>
+              <Card
+                style={{
+                  background: "var(--color-background-lighter)",
+                  border: "1px solid var(--color-border)",
+                  padding: "24px",
+                }}
+              >
                 <h3
                   style={{
                     fontSize: 16,
                     fontWeight: 500,
-                    color: "#f5f5f5",
+                    color: "var(--color-text)",
                     marginBottom: 16,
                   }}
                 >
@@ -376,7 +487,7 @@ const VideoAnalysis: React.FC = () => {
                     <Col span={8}>
                       <Form.Item
                         label={
-                          <span style={{ color: "#c0c0c0" }}>识别语言</span>
+                          <span style={{ color: "var(--color-text-secondary)" }}>识别语言</span>
                         }
                         name="language"
                       >
@@ -389,7 +500,7 @@ const VideoAnalysis: React.FC = () => {
                     <Col span={8}>
                       <Form.Item
                         label={
-                          <span style={{ color: "#c0c0c0" }}>说话人分离</span>
+                          <span style={{ color: "var(--color-text-secondary)" }}>说话人分离</span>
                         }
                         name="enableSpeakerDiarization"
                         valuePropName="checked"
@@ -404,7 +515,7 @@ const VideoAnalysis: React.FC = () => {
                     <Col span={8}>
                       <Form.Item
                         label={
-                          <span style={{ color: "#c0c0c0" }}>
+                          <span style={{ color: "var(--color-text-secondary)" }}>
                             热词提示（可选）
                           </span>
                         }
@@ -416,465 +527,94 @@ const VideoAnalysis: React.FC = () => {
                     </Col>
                   </Row>
                 </Form>
-                <Divider style={{ margin: "24px 0", borderColor: "#2a2a2a" }} />
-              </div>
-            )}
+                <Divider style={{ margin: "24px 0", borderColor: "var(--color-border)" }} />
+              </Card>
+            </Col>
+          </Row>
+        )}
 
-            {/* 错误信息 */}
-            {error && (
-              <Alert
-                message="处理失败"
-                description={error}
-                type="error"
-                showIcon
-                style={{ marginBottom: 24 }}
-              />
-            )}
-
-            {/* 文件上传区域 */}
-            {!uploadResult && (
-              <Dragger
-                beforeUpload={handleUpload}
-                showUploadList={false}
-                disabled={isUploading}
-                accept=".mp4,.avi,.mov,.mkv,.webm,.flv,.wav,.mp3,.flac,.aac,.ogg"
+        {/* 上传和分析进度 */}
+        {isUploading && (
+          <div style={{ marginBottom: 32 }}>
+            {/* 上传进度 */}
+            <div style={{ marginBottom: 24 }}>
+              <div
                 style={{
-                  background: "transparent",
-                  border: isUploading
-                    ? "1px dashed #a8c090"
-                    : "1px dashed #2a2a2a",
-                  borderRadius: 0,
-                  marginBottom: 32,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: 16,
                 }}
               >
-                <div
+                <h3
                   style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    padding: "48px",
+                    fontSize: 14,
+                    fontWeight: 500,
+                    color: "var(--color-text)",
+                    margin: 0,
                   }}
                 >
-                  <div
-                    style={{
-                      width: 64,
-                      height: 64,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginBottom: 16,
-                    }}
-                  >
-                    {isUploading ? (
-                      <LoadingOutlined
-                        style={{ fontSize: 30, color: "#a8c090" }}
-                      />
-                    ) : (
-                      <InboxOutlined
-                        style={{ fontSize: 30, color: "#a8c090" }}
-                      />
-                    )}
-                  </div>
-                  <h3
-                    style={{
-                      fontSize: 20,
-                      fontWeight: 500,
-                      color: "#f5f5f5",
-                      marginBottom: 16,
-                      margin: 0,
-                    }}
-                  >
-                    {isUploading ? "正在处理中..." : "上传舞台视频"}
-                  </h3>
-                  <p
-                    style={{
-                      color: "#c0c0c0",
-                      textAlign: "center",
-                      marginBottom: 24,
-                      fontSize: 12,
-                      margin: "0 0 24px 0",
-                    }}
-                  >
-                    {isUploading ? (
-                      "AI正在分析视频并提取台词，请稍候..."
-                    ) : (
-                      <>
-                        支持MP4、MOV、AVI、MKV、WebM、FLV等视频格式
-                        <br />
-                        以及WAV、MP3、FLAC、AAC、OGG等音频格式
-                        <br />
-                        文件大小限制：200MB
-                      </>
-                    )}
-                  </p>
-                  {!isUploading && (
-                    <Button
-                      type="primary"
-                      style={{
-                        background: "#a8c090",
-                        borderColor: "#a8c090",
-                        color: "#1a1a1a",
-                        fontSize: 14,
-                        height: "auto",
-                        padding: "12px 24px",
-                      }}
-                    >
-                      选择文件
-                    </Button>
-                  )}
+                  正在上传: {fileName}
+                </h3>
+                <Button
+                  type="link"
+                  style={{ color: "var(--color-warning)", fontSize: 12, padding: 0 }}
+                  onClick={() => {
+                    setIsUploading(false);
+                    setUploadProgress(0);
+                    setAnalysisProgress(0);
+                    setHasFile(false);
+                    setFileName("");
+                  }}
+                >
+                  取消
+                </Button>
+              </div>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <div
+                  style={{
+                    width: 80,
+                    height: 45,
+                    background: "var(--color-background-darker)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginRight: 16,
+                  }}
+                >
+                  <CloudUploadOutlined
+                    style={{ fontSize: 20, color: "var(--color-accent)" }}
+                  />
                 </div>
-              </Dragger>
-            )}
-
-            {/* 上传和分析进度 */}
-            {isUploading && (
-              <div style={{ marginBottom: 32 }}>
-                {/* 上传进度 */}
-                <div style={{ marginBottom: 24 }}>
+                <div style={{ flex: 1 }}>
                   <div
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      alignItems: "center",
-                      marginBottom: 16,
+                      marginBottom: 8,
                     }}
                   >
-                    <h3
-                      style={{
-                        fontSize: 14,
-                        fontWeight: 500,
-                        color: "#f5f5f5",
-                        margin: 0,
-                      }}
-                    >
-                      正在上传: {fileName}
-                    </h3>
-                    <Button
-                      type="link"
-                      style={{ color: "#d08770", fontSize: 12, padding: 0 }}
-                      onClick={() => {
-                        setIsUploading(false);
-                        setUploadProgress(0);
-                        setAnalysisProgress(0);
-                        setHasFile(false);
-                        setFileName("");
-                      }}
-                    >
-                      取消
-                    </Button>
+                    <span style={{ color: "var(--color-text-secondary)", fontSize: 10 }}>
+                      文件上传
+                    </span>
+                    <span style={{ color: "var(--color-text-secondary)", fontSize: 10 }}>
+                      {uploadProgress}%
+                    </span>
                   </div>
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <div
-                      style={{
-                        width: 80,
-                        height: 45,
-                        background: "#1f1f1f",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        marginRight: 16,
-                      }}
-                    >
-                      <CloudUploadOutlined
-                        style={{ fontSize: 20, color: "#a8c090" }}
-                      />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          marginBottom: 8,
-                        }}
-                      >
-                        <span style={{ color: "#c0c0c0", fontSize: 10 }}>
-                          文件上传
-                        </span>
-                        <span style={{ color: "#c0c0c0", fontSize: 10 }}>
-                          {uploadProgress}%
-                        </span>
-                      </div>
-                      <Progress
-                        percent={uploadProgress}
-                        showInfo={false}
-                        strokeColor="#a8c090"
-                        trailColor="#1f1f1f"
-                        size="small"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* 分析进度 */}
-                {uploadProgress >= 90 && (
-                  <div style={{ marginBottom: 24 }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        marginBottom: 16,
-                      }}
-                    >
-                      <h3
-                        style={{
-                          fontSize: 14,
-                          fontWeight: 500,
-                          color: "#f5f5f5",
-                          margin: 0,
-                        }}
-                      >
-                        AI分析处理
-                      </h3>
-                      <div style={{ display: "flex", alignItems: "center" }}>
-                        <LoadingOutlined
-                          style={{
-                            fontSize: 14,
-                            color: "#a8c090",
-                            marginRight: 8,
-                          }}
-                        />
-                        <span style={{ color: "#a8c090", fontSize: 12 }}>
-                          正在分析中
-                        </span>
-                      </div>
-                    </div>
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <div
-                        style={{
-                          width: 80,
-                          height: 45,
-                          background: "#1f1f1f",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          marginRight: 16,
-                        }}
-                      >
-                        <SoundOutlined
-                          style={{ fontSize: 20, color: "#a8c090" }}
-                        />
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            marginBottom: 8,
-                          }}
-                        >
-                          <span style={{ color: "#c0c0c0", fontSize: 10 }}>
-                            台词提取和分析
-                          </span>
-                          <span style={{ color: "#c0c0c0", fontSize: 10 }}>
-                            {analysisProgress}%
-                          </span>
-                        </div>
-                        <Progress
-                          percent={analysisProgress}
-                          showInfo={false}
-                          strokeColor="#a8c090"
-                          trailColor="#1f1f1f"
-                          size="small"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* 分析完成结果 */}
-            {uploadResult && (
-              <div style={{ marginBottom: 32 }}>
-                <Alert
-                  message="视频分析完成"
-                  description={`成功从"${uploadResult.filename}"中提取了 ${uploadResult.total_segments} 条台词，检测到 ${uploadResult.speaker_count} 个说话人`}
-                  type="success"
-                  showIcon
-                  style={{ marginBottom: 24 }}
-                />
-
-                {/* 分析结果统计 */}
-                <div
-                  style={{
-                    background: "#1f1f1f",
-                    padding: 20,
-                    borderRadius: 8,
-                    marginBottom: 24,
-                  }}
-                >
-                  <h4
-                    style={{
-                      fontSize: 14,
-                      fontWeight: 500,
-                      color: "#f5f5f5",
-                      marginBottom: 16,
-                    }}
-                  >
-                    分析结果统计
-                  </h4>
-                  <Row gutter={24}>
-                    <Col span={6}>
-                      <div style={{ textAlign: "center" }}>
-                        <div
-                          style={{
-                            fontSize: 24,
-                            color: "#a8c090",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {Math.floor(uploadResult.total_duration / 60)}:
-                          {Math.floor(uploadResult.total_duration % 60)
-                            .toString()
-                            .padStart(2, "0")}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: 12,
-                            color: "#c0c0c0",
-                            marginTop: 4,
-                          }}
-                        >
-                          总时长
-                        </div>
-                      </div>
-                    </Col>
-                    <Col span={6}>
-                      <div style={{ textAlign: "center" }}>
-                        <div
-                          style={{
-                            fontSize: 24,
-                            color: "#a8c090",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {uploadResult.total_segments}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: 12,
-                            color: "#c0c0c0",
-                            marginTop: 4,
-                          }}
-                        >
-                          台词数量
-                        </div>
-                      </div>
-                    </Col>
-                    <Col span={6}>
-                      <div style={{ textAlign: "center" }}>
-                        <div
-                          style={{
-                            fontSize: 24,
-                            color: "#a8c090",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {uploadResult.speaker_count}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: 12,
-                            color: "#c0c0c0",
-                            marginTop: 4,
-                          }}
-                        >
-                          说话人数
-                        </div>
-                      </div>
-                    </Col>
-                    <Col span={6}>
-                      <div style={{ textAlign: "center" }}>
-                        <div
-                          style={{
-                            fontSize: 24,
-                            color: "#a8c090",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {
-                            (uploadResult.srt_content || uploadResult.full_text)
-                              .length
-                          }
-                        </div>
-                        <div
-                          style={{
-                            fontSize: 12,
-                            color: "#c0c0c0",
-                            marginTop: 4,
-                          }}
-                        >
-                          SRT字符数
-                        </div>
-                      </div>
-                    </Col>
-                  </Row>
-                </div>
-
-                {/* 台词预览 */}
-                <div
-                  style={{
-                    background: "#1f1f1f",
-                    padding: 20,
-                    borderRadius: 8,
-                  }}
-                >
-                  <h4
-                    style={{
-                      fontSize: 14,
-                      fontWeight: 500,
-                      color: "#f5f5f5",
-                      marginBottom: 16,
-                    }}
-                  >
-                    SRT字幕预览
-                  </h4>
-                  <TextArea
-                    value={uploadResult.srt_content || uploadResult.full_text}
-                    readOnly
-                    rows={8}
-                    style={{
-                      background: "#0a0a0a",
-                      color: "#c0c0c0",
-                      border: "1px solid #2a2a2a",
-                      fontSize: 12,
-                      resize: "none",
-                      fontFamily: "monospace",
-                    }}
+                  <Progress
+                    percent={uploadProgress}
+                    showInfo={false}
+                    strokeColor="var(--color-accent)"
+                    trailColor="var(--color-background-darker)"
+                    size="small"
                   />
-                  <div style={{ marginTop: 12, textAlign: "right" }}>
-                    <Space>
-                      <Button
-                        size="small"
-                        type="primary"
-                        onClick={() => {
-                          navigator.clipboard.writeText(
-                            uploadResult.srt_content
-                          );
-                          message.success("SRT字幕已复制到剪贴板");
-                        }}
-                      >
-                        复制SRT字幕
-                      </Button>
-                      <Button
-                        size="small"
-                        onClick={() => {
-                          navigator.clipboard.writeText(uploadResult.full_text);
-                          message.success("台词纯文本已复制到剪贴板");
-                        }}
-                      >
-                        复制纯文本
-                      </Button>
-                    </Space>
-                  </div>
                 </div>
               </div>
-            )}
+            </div>
 
-            {/* AI分析状态 */}
-            {(isUploading || uploadResult) && (
-              <div>
+            {/* 分析进度 */}
+            {uploadProgress >= 90 && (
+              <div style={{ marginBottom: 24 }}>
                 <div
                   style={{
                     display: "flex",
@@ -887,125 +627,390 @@ const VideoAnalysis: React.FC = () => {
                     style={{
                       fontSize: 14,
                       fontWeight: 500,
-                      color: "#f5f5f5",
+                      color: "var(--color-text)",
                       margin: 0,
                     }}
                   >
-                    AI分析状态
+                    AI分析处理
                   </h3>
                   <div style={{ display: "flex", alignItems: "center" }}>
-                    {uploadResult ? (
-                      <>
-                        <CheckCircleOutlined
-                          style={{
-                            fontSize: 14,
-                            color: "#a8c090",
-                            marginRight: 8,
-                          }}
-                        />
-                        <span style={{ color: "#a8c090", fontSize: 12 }}>
-                          分析完成
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        <LoadingOutlined
-                          style={{
-                            fontSize: 14,
-                            color: "#a8c090",
-                            marginRight: 8,
-                          }}
-                        />
-                        <span style={{ color: "#a8c090", fontSize: 12 }}>
-                          正在分析中
-                        </span>
-                      </>
-                    )}
+                    <LoadingOutlined
+                      style={{
+                        fontSize: 14,
+                        color: "var(--color-accent)",
+                        marginRight: 8,
+                      }}
+                    />
+                    <span style={{ color: "var(--color-accent)", fontSize: 12 }}>
+                      正在分析中
+                    </span>
                   </div>
                 </div>
-
-                {/* 分析步骤 */}
-                <Row gutter={16}>
-                  {analysisSteps.map((step) => (
-                    <Col span={6} key={step.id}>
-                      <Card
-                        style={{
-                          background: "#1f1f1f",
-                          border: "none",
-                          padding: "16px",
-                        }}
-                      >
-                        <div style={{ display: "flex", alignItems: "center" }}>
-                          <div
-                            style={{
-                              width: 40,
-                              height: 40,
-                              background: "#2a2a2a",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              marginRight: 12,
-                            }}
-                          >
-                            {step.status === "processing" ? (
-                              <LoadingOutlined
-                                style={{
-                                  fontSize: 16,
-                                  color: getStepStatusColor(step.status),
-                                }}
-                              />
-                            ) : step.status === "completed" ? (
-                              <CheckCircleOutlined
-                                style={{
-                                  fontSize: 16,
-                                  color: getStepStatusColor(step.status),
-                                }}
-                              />
-                            ) : (
-                              <span
-                                style={{
-                                  fontSize: 16,
-                                  color: getStepStatusColor(step.status),
-                                }}
-                              >
-                                {step.icon}
-                              </span>
-                            )}
-                          </div>
-                          <div>
-                            <p
-                              style={{
-                                color: "#c0c0c0",
-                                fontSize: 10,
-                                margin: 0,
-                                marginBottom: 4,
-                              }}
-                            >
-                              {step.name}
-                            </p>
-                            <p
-                              style={{
-                                fontSize: 14,
-                                fontWeight: 500,
-                                color: getStepStatusColor(step.status),
-                                margin: 0,
-                              }}
-                            >
-                              {step.status === "completed"
-                                ? "完成"
-                                : step.status === "processing"
-                                ? "进行中"
-                                : "等待中"}
-                            </p>
-                          </div>
-                        </div>
-                      </Card>
-                    </Col>
-                  ))}
-                </Row>
+                <div style={{ display: "flex", alignItems: "center" }}>
+                  <div
+                    style={{
+                      width: 80,
+                      height: 45,
+                      background: "var(--color-background-darker)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginRight: 16,
+                    }}
+                  >
+                    <SoundOutlined
+                      style={{ fontSize: 20, color: "var(--color-accent)" }}
+                    />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        marginBottom: 8,
+                      }}
+                    >
+                      <span style={{ color: "var(--color-text-secondary)", fontSize: 10 }}>
+                        台词提取和分析
+                      </span>
+                      <span style={{ color: "var(--color-text-secondary)", fontSize: 10 }}>
+                        {analysisProgress}%
+                      </span>
+                    </div>
+                    <Progress
+                      percent={analysisProgress}
+                      showInfo={false}
+                      strokeColor="var(--color-accent)"
+                      trailColor="var(--color-background-darker)"
+                      size="small"
+                    />
+                  </div>
+                </div>
               </div>
             )}
-          </Card>
+          </div>
+        )}
+
+        {/* 分析完成结果 */}
+        {uploadResult && (
+          <div style={{ marginBottom: 32 }}>
+            <Alert
+              message="视频分析完成"
+              description={`成功从"${uploadResult.filename}"中提取了 ${uploadResult.total_segments} 条台词，检测到 ${uploadResult.speaker_count} 个说话人`}
+              type="success"
+              showIcon
+              style={{ marginBottom: 24 }}
+            />
+
+            {/* 分析结果统计 */}
+            <div
+              style={{
+                background: "var(--color-background-darker)",
+                padding: 20,
+                borderRadius: 8,
+                marginBottom: 24,
+              }}
+            >
+              <h4
+                style={{
+                  fontSize: 14,
+                  fontWeight: 500,
+                  color: "var(--color-text)",
+                  marginBottom: 16,
+                }}
+              >
+                分析结果统计
+              </h4>
+              <Row gutter={24}>
+                <Col span={6}>
+                  <div style={{ textAlign: "center" }}>
+                    <div
+                      style={{
+                        fontSize: 24,
+                        color: "var(--color-accent)",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {Math.floor(uploadResult.total_duration / 60)}:
+                      {Math.floor(uploadResult.total_duration % 60)
+                        .toString()
+                        .padStart(2, "0")}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: "var(--color-text-secondary)",
+                        marginTop: 4,
+                      }}
+                    >
+                      总时长
+                    </div>
+                  </div>
+                </Col>
+                <Col span={6}>
+                  <div style={{ textAlign: "center" }}>
+                    <div
+                      style={{
+                        fontSize: 24,
+                        color: "var(--color-accent)",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {uploadResult.total_segments}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: "var(--color-text-secondary)",
+                        marginTop: 4,
+                      }}
+                    >
+                      台词数量
+                    </div>
+                  </div>
+                </Col>
+                <Col span={6}>
+                  <div style={{ textAlign: "center" }}>
+                    <div
+                      style={{
+                        fontSize: 24,
+                        color: "var(--color-accent)",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {uploadResult.speaker_count}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: "var(--color-text-secondary)",
+                        marginTop: 4,
+                      }}
+                    >
+                      说话人数
+                    </div>
+                  </div>
+                </Col>
+                <Col span={6}>
+                  <div style={{ textAlign: "center" }}>
+                    <div
+                      style={{
+                        fontSize: 24,
+                        color: "var(--color-accent)",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {
+                        (uploadResult.srt_content || uploadResult.full_text)
+                          .length
+                      }
+                    </div>
+                    <div
+                      style={{
+                        fontSize: 12,
+                        color: "var(--color-text-secondary)",
+                        marginTop: 4,
+                      }}
+                    >
+                      SRT字符数
+                    </div>
+                  </div>
+                </Col>
+              </Row>
+            </div>
+
+            {/* 台词预览 */}
+            <div
+              style={{
+                background: "var(--color-background-darker)",
+                padding: 20,
+                borderRadius: 8,
+              }}
+            >
+              <h4
+                style={{
+                  fontSize: 14,
+                  fontWeight: 500,
+                  color: "var(--color-text)",
+                  marginBottom: 16,
+                }}
+              >
+                SRT字幕预览
+              </h4>
+              <TextArea
+                value={uploadResult.srt_content || uploadResult.full_text}
+                readOnly
+                rows={8}
+                style={{
+                  background: "var(--color-background-darker)",
+                  color: "var(--color-text-secondary)",
+                  border: "1px solid var(--color-border)",
+                  fontSize: 12,
+                  resize: "none",
+                  fontFamily: "monospace",
+                }}
+              />
+              <div style={{ marginTop: 12, textAlign: "right" }}>
+                <Space>
+                  <Button
+                    size="small"
+                    type="primary"
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        uploadResult.srt_content
+                      );
+                      message.success("SRT字幕已复制到剪贴板");
+                    }}
+                  >
+                    复制SRT字幕
+                  </Button>
+                  <Button
+                    size="small"
+                    onClick={() => {
+                      navigator.clipboard.writeText(uploadResult.full_text);
+                      message.success("台词纯文本已复制到剪贴板");
+                    }}
+                  >
+                    复制纯文本
+                  </Button>
+                </Space>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* AI分析状态 */}
+        {(isUploading || uploadResult) && (
+          <div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: 16,
+              }}
+            >
+              <h3
+                style={{
+                  fontSize: 14,
+                  fontWeight: 500,
+                  color: "var(--color-text)",
+                  margin: 0,
+                }}
+              >
+                AI分析状态
+              </h3>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                {uploadResult ? (
+                  <>
+                    <CheckCircleOutlined
+                      style={{
+                        fontSize: 14,
+                        color: "var(--color-accent)",
+                        marginRight: 8,
+                      }}
+                    />
+                    <span style={{ color: "var(--color-accent)", fontSize: 12 }}>
+                      分析完成
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <LoadingOutlined
+                      style={{
+                        fontSize: 14,
+                        color: "var(--color-accent)",
+                        marginRight: 8,
+                      }}
+                    />
+                    <span style={{ color: "var(--color-accent)", fontSize: 12 }}>
+                      正在分析中
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* 分析步骤 */}
+            <Row gutter={16}>
+              {analysisSteps.map((step) => (
+                <Col span={6} key={step.id}>
+                  <Card
+                    style={{
+                      background: "var(--color-background-darker)",
+                      border: "none",
+                      padding: "16px",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <div
+                        style={{
+                          width: 40,
+                          height: 40,
+                          background: "var(--color-background-darker)",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginRight: 12,
+                        }}
+                      >
+                        {step.status === "processing" ? (
+                          <LoadingOutlined
+                            style={{
+                              fontSize: 16,
+                              color: getStepStatusColor(step.status),
+                            }}
+                          />
+                        ) : step.status === "completed" ? (
+                          <CheckCircleOutlined
+                            style={{
+                              fontSize: 16,
+                              color: getStepStatusColor(step.status),
+                            }}
+                          />
+                        ) : (
+                          <span
+                            style={{
+                              fontSize: 16,
+                              color: getStepStatusColor(step.status),
+                            }}
+                          >
+                            {step.icon}
+                          </span>
+                        )}
+                      </div>
+                      <div>
+                        <p
+                          style={{
+                            color: "var(--color-text-secondary)",
+                            fontSize: 10,
+                            margin: 0,
+                            marginBottom: 4,
+                          }}
+                        >
+                          {step.name}
+                        </p>
+                        <p
+                          style={{
+                            fontSize: 14,
+                            fontWeight: 500,
+                            color: getStepStatusColor(step.status),
+                            margin: 0,
+                          }}
+                        >
+                          {step.status === "completed"
+                            ? "完成"
+                            : step.status === "processing"
+                            ? "进行中"
+                            : "等待中"}
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          </div>
         )}
 
         {/* 分析结果概览 */}
@@ -1015,7 +1020,7 @@ const VideoAnalysis: React.FC = () => {
               style={{
                 fontSize: 20,
                 fontWeight: 500,
-                color: "#f5f5f5",
+                color: "var(--color-text)",
                 marginBottom: 16,
                 margin: "0 0 16px 0",
               }}
@@ -1028,7 +1033,7 @@ const VideoAnalysis: React.FC = () => {
               <Col span={12}>
                 <Card
                   style={{
-                    background: "#151515",
+                    background: "var(--color-background-lighter)",
                     border: "none",
                     padding: "24px",
                   }}
@@ -1045,19 +1050,19 @@ const VideoAnalysis: React.FC = () => {
                       style={{
                         fontSize: 14,
                         fontWeight: 500,
-                        color: "#f5f5f5",
+                        color: "var(--color-text)",
                         margin: 0,
                       }}
                     >
                       舞台区域划分
                     </h4>
-                    <span style={{ color: "#a8c090", fontSize: 10 }}>
+                    <span style={{ color: "var(--color-accent)", fontSize: 10 }}>
                       65% 完成
                     </span>
                   </div>
                   <div
                     style={{
-                      background: "#1f1f1f",
+                      background: "var(--color-background-darker)",
                       width: "100%",
                       height: 240,
                       display: "flex",
@@ -1078,7 +1083,7 @@ const VideoAnalysis: React.FC = () => {
                   </div>
                   <p
                     style={{
-                      color: "#c0c0c0",
+                      color: "var(--color-text-secondary)",
                       fontSize: 12,
                       margin: 0,
                     }}
@@ -1092,7 +1097,7 @@ const VideoAnalysis: React.FC = () => {
               <Col span={12}>
                 <Card
                   style={{
-                    background: "#151515",
+                    background: "var(--color-background-lighter)",
                     border: "none",
                     padding: "24px",
                   }}
@@ -1109,19 +1114,19 @@ const VideoAnalysis: React.FC = () => {
                       style={{
                         fontSize: 14,
                         fontWeight: 500,
-                        color: "#f5f5f5",
+                        color: "var(--color-text)",
                         margin: 0,
                       }}
                     >
                       演员定位
                     </h4>
-                    <span style={{ color: "#7fb069", fontSize: 10 }}>
+                    <span style={{ color: "var(--color-success)", fontSize: 10 }}>
                       100% 完成
                     </span>
                   </div>
                   <div
                     style={{
-                      background: "#1f1f1f",
+                      background: "var(--color-background-darker)",
                       width: "100%",
                       height: 240,
                       display: "flex",
@@ -1155,12 +1160,12 @@ const VideoAnalysis: React.FC = () => {
                             width: 15,
                             height: 15,
                             borderRadius: "50%",
-                            background: "#a8c090",
+                            background: "var(--color-accent)",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
                             fontSize: 8,
-                            color: "#1a1a1a",
+                            color: "var(--color-background-darker)",
                             fontWeight: "bold",
                           }}
                         >
@@ -1171,7 +1176,7 @@ const VideoAnalysis: React.FC = () => {
                   </div>
                   <p
                     style={{
-                      color: "#c0c0c0",
+                      color: "var(--color-text-secondary)",
                       fontSize: 12,
                       margin: 0,
                     }}
@@ -1187,7 +1192,7 @@ const VideoAnalysis: React.FC = () => {
               <Col span={8}>
                 <Card
                   style={{
-                    background: "#151515",
+                    background: "var(--color-background-lighter)",
                     border: "none",
                     padding: "24px",
                   }}
@@ -1203,7 +1208,7 @@ const VideoAnalysis: React.FC = () => {
                       style={{
                         width: 32,
                         height: 32,
-                        background: "#1f1f1f",
+                        background: "var(--color-background-darker)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -1211,7 +1216,7 @@ const VideoAnalysis: React.FC = () => {
                       }}
                     >
                       <BulbOutlined
-                        style={{ fontSize: 16, color: "#909090" }}
+                        style={{ fontSize: 16, color: "var(--color-text-secondary)" }}
                       />
                     </div>
                     <div>
@@ -1219,7 +1224,7 @@ const VideoAnalysis: React.FC = () => {
                         style={{
                           fontSize: 14,
                           fontWeight: 500,
-                          color: "#f5f5f5",
+                          color: "var(--color-text)",
                           margin: 0,
                         }}
                       >
@@ -1227,7 +1232,7 @@ const VideoAnalysis: React.FC = () => {
                       </h4>
                       <p
                         style={{
-                          color: "#909090",
+                          color: "var(--color-text-secondary)",
                           fontSize: 10,
                           margin: 0,
                         }}
@@ -1238,7 +1243,7 @@ const VideoAnalysis: React.FC = () => {
                   </div>
                   <p
                     style={{
-                      color: "#c0c0c0",
+                      color: "var(--color-text-secondary)",
                       fontSize: 12,
                       margin: 0,
                     }}
@@ -1251,7 +1256,7 @@ const VideoAnalysis: React.FC = () => {
               <Col span={8}>
                 <Card
                   style={{
-                    background: "#151515",
+                    background: "var(--color-background-lighter)",
                     border: "none",
                     padding: "24px",
                   }}
@@ -1267,7 +1272,7 @@ const VideoAnalysis: React.FC = () => {
                       style={{
                         width: 32,
                         height: 32,
-                        background: "#1f1f1f",
+                        background: "var(--color-background-darker)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -1275,7 +1280,7 @@ const VideoAnalysis: React.FC = () => {
                       }}
                     >
                       <SoundOutlined
-                        style={{ fontSize: 16, color: "#909090" }}
+                        style={{ fontSize: 16, color: "var(--color-text-secondary)" }}
                       />
                     </div>
                     <div>
@@ -1283,7 +1288,7 @@ const VideoAnalysis: React.FC = () => {
                         style={{
                           fontSize: 14,
                           fontWeight: 500,
-                          color: "#f5f5f5",
+                          color: "var(--color-text)",
                           margin: 0,
                         }}
                       >
@@ -1291,7 +1296,7 @@ const VideoAnalysis: React.FC = () => {
                       </h4>
                       <p
                         style={{
-                          color: "#909090",
+                          color: "var(--color-text-secondary)",
                           fontSize: 10,
                           margin: 0,
                         }}
@@ -1302,7 +1307,7 @@ const VideoAnalysis: React.FC = () => {
                   </div>
                   <p
                     style={{
-                      color: "#c0c0c0",
+                      color: "var(--color-text-secondary)",
                       fontSize: 12,
                       margin: 0,
                     }}
@@ -1315,7 +1320,7 @@ const VideoAnalysis: React.FC = () => {
               <Col span={8}>
                 <Card
                   style={{
-                    background: "#151515",
+                    background: "var(--color-background-lighter)",
                     border: "none",
                     padding: "24px",
                   }}
@@ -1331,7 +1336,7 @@ const VideoAnalysis: React.FC = () => {
                       style={{
                         width: 32,
                         height: 32,
-                        background: "#1f1f1f",
+                        background: "var(--color-background-darker)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -1339,7 +1344,7 @@ const VideoAnalysis: React.FC = () => {
                       }}
                     >
                       <CommentOutlined
-                        style={{ fontSize: 16, color: "#909090" }}
+                        style={{ fontSize: 16, color: "var(--color-text-secondary)" }}
                       />
                     </div>
                     <div>
@@ -1347,7 +1352,7 @@ const VideoAnalysis: React.FC = () => {
                         style={{
                           fontSize: 14,
                           fontWeight: 500,
-                          color: "#f5f5f5",
+                          color: "var(--color-text)",
                           margin: 0,
                         }}
                       >
@@ -1355,7 +1360,7 @@ const VideoAnalysis: React.FC = () => {
                       </h4>
                       <p
                         style={{
-                          color: "#909090",
+                          color: "var(--color-text-secondary)",
                           fontSize: 10,
                           margin: 0,
                         }}
@@ -1366,7 +1371,7 @@ const VideoAnalysis: React.FC = () => {
                   </div>
                   <p
                     style={{
-                      color: "#c0c0c0",
+                      color: "var(--color-text-secondary)",
                       fontSize: 12,
                       margin: 0,
                     }}
@@ -1397,8 +1402,8 @@ const VideoAnalysis: React.FC = () => {
                   setError(null);
                 }}
                 style={{
-                  color: "#c0c0c0",
-                  borderColor: "#2a2a2a",
+                  color: "var(--color-text-secondary)",
+                  borderColor: "var(--color-border)",
                   background: "transparent",
                   fontSize: 14,
                   height: "auto",
@@ -1429,8 +1434,8 @@ const VideoAnalysis: React.FC = () => {
                     message.success("分析结果已下载");
                   }}
                   style={{
-                    color: "#a8c090",
-                    borderColor: "#a8c090",
+                    color: "var(--color-accent)",
+                    borderColor: "var(--color-accent)",
                     background: "transparent",
                     fontSize: 14,
                     height: "auto",
@@ -1445,9 +1450,9 @@ const VideoAnalysis: React.FC = () => {
                   iconPosition="end"
                   onClick={enterStageEditor}
                   style={{
-                    background: "#a8c090",
-                    borderColor: "#a8c090",
-                    color: "#1a1a1a",
+                    background: "var(--color-accent)",
+                    borderColor: "var(--color-accent)",
+                    color: "var(--color-background-darker)",
                     fontSize: 14,
                     height: "auto",
                     padding: "12px 24px",
@@ -1462,8 +1467,8 @@ const VideoAnalysis: React.FC = () => {
               <Button
                 onClick={() => navigate("/workspace")}
                 style={{
-                  color: "#c0c0c0",
-                  borderColor: "#2a2a2a",
+                  color: "var(--color-text-secondary)",
+                  borderColor: "var(--color-border)",
                   background: "transparent",
                   fontSize: 14,
                   height: "auto",
@@ -1476,8 +1481,8 @@ const VideoAnalysis: React.FC = () => {
                 <Button
                   disabled={!hasFile}
                   style={{
-                    color: hasFile ? "#a8c090" : "#666",
-                    borderColor: hasFile ? "#a8c090" : "#2a2a2a",
+                    color: hasFile ? "var(--color-accent)" : "var(--color-text-secondary)",
+                    borderColor: hasFile ? "var(--color-accent)" : "var(--color-border)",
                     background: "transparent",
                     fontSize: 14,
                     height: "auto",
@@ -1492,9 +1497,9 @@ const VideoAnalysis: React.FC = () => {
                   iconPosition="end"
                   onClick={() => navigate("/editor")}
                   style={{
-                    background: "#a8c090",
-                    borderColor: "#a8c090",
-                    color: "#1a1a1a",
+                    background: "var(--color-accent)",
+                    borderColor: "var(--color-accent)",
+                    color: "var(--color-background-darker)",
                     fontSize: 14,
                     height: "auto",
                     padding: "12px 24px",

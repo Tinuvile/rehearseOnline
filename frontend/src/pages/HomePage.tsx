@@ -33,7 +33,7 @@ const HomePage: React.FC = () => {
       title: "创建新项目",
       description: "开始一个全新的舞台设计项目",
       icon: <PlusOutlined />,
-      color: "#a8c090",
+      color: "var(--color-accent)",
       action: () => navigate("/workspace"),
     },
     {
@@ -73,29 +73,31 @@ const HomePage: React.FC = () => {
 
   return (
     <Layout
-      style={{ minHeight: "100vh", height: "auto", background: "#0a0a0a" }}
+      style={{ minHeight: "100vh", height: "auto", background: "var(--color-background)" }}
     >
       <StageHeader />
 
-      <Content style={{ background: "#0a0a0a", padding: "48px" }}>
+      <Content style={{ background: "var(--color-background)", padding: "48px" }}>
         {/* 欢迎区域 */}
         <div style={{ marginBottom: 32 }}>
           <h1
             style={{
-              fontSize: 36,
+              fontSize: "2.5rem",
               fontWeight: 600,
-              color: "#f5f5f5",
-              marginBottom: 8,
-              margin: "0 0 8px 0",
+              color: "var(--color-text)",
+              marginBottom: 12,
+              margin: "0 0 12px 0",
+              letterSpacing: "-0.02em",
             }}
           >
             欢迎回来，林设计师
           </h1>
           <p
             style={{
-              fontSize: 16,
-              color: "#c0c0c0",
+              fontSize: "1.125rem",
+              color: "rgba(217, 214, 206, 0.8)",
               margin: 0,
+              fontWeight: 400,
             }}
           >
             今天是个创作的好日子，让我们开始新的舞台设计之旅吧！
@@ -107,7 +109,7 @@ const HomePage: React.FC = () => {
           {stats.map((stat, index) => (
             <Col span={6} key={index}>
               <Card
-                style={{ background: "#151515", border: "1px solid #2a2a2a" }}
+                style={{ background: "var(--color-background-lighter)", border: "1px solid var(--color-border)" }}
               >
                 <div
                   style={{
@@ -119,28 +121,31 @@ const HomePage: React.FC = () => {
                   <div>
                     <p
                       style={{
-                        color: "#c0c0c0",
-                        fontSize: 14,
+                        color: "rgba(217, 214, 206, 0.8)",
+                        fontSize: "0.875rem",
                         margin: "0 0 8px 0",
+                        fontWeight: 400,
                       }}
                     >
                       {stat.label}
                     </p>
                     <h3
                       style={{
-                        color: "#f5f5f5",
-                        fontSize: 24,
+                        color: "var(--color-text)",
+                        fontSize: "1.75rem",
                         fontWeight: 600,
                         margin: 0,
+                        letterSpacing: "-0.01em",
                       }}
                     >
                       {stat.value}
                     </h3>
                     <p
                       style={{
-                        color: "#a8c090",
-                        fontSize: 12,
+                        color: "var(--color-accent)",
+                        fontSize: "0.75rem",
                         margin: "4px 0 0 0",
+                        fontWeight: 500,
                       }}
                     >
                       {stat.trend}
@@ -150,14 +155,14 @@ const HomePage: React.FC = () => {
                     style={{
                       width: 48,
                       height: 48,
-                      background: "#1f1f1f",
+                      background: "var(--color-background)",
                       borderRadius: "50%",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                     }}
                   >
-                    <span style={{ fontSize: 20, color: "#a8c090" }}>
+                    <span style={{ fontSize: 20, color: "var(--color-accent)" }}>
                       {stat.icon}
                     </span>
                   </div>
@@ -167,21 +172,27 @@ const HomePage: React.FC = () => {
           ))}
         </Row>
 
+        {/* 其他卡片标题样式 */}
         <Row gutter={24}>
           {/* 快速操作 */}
           <Col span={16}>
             <Card
               title={
                 <span
-                  style={{ color: "#f5f5f5", fontSize: 18, fontWeight: 500 }}
+                  style={{ 
+                    color: "var(--color-text)", 
+                    fontSize: "1.125rem", 
+                    fontWeight: 600,
+                    letterSpacing: "-0.01em"
+                  }}
                 >
                   快速操作
                 </span>
               }
               style={{
-                background: "#151515",
-                border: "1px solid #2a2a2a",
-                marginBottom: 24,
+                background: "var(--color-background-lighter)",
+                border: "1px solid var(--color-border)",
+                height: "100%",
               }}
             >
               <Row gutter={16}>
@@ -190,8 +201,8 @@ const HomePage: React.FC = () => {
                     <Card
                       hoverable
                       style={{
-                        background: "#1f1f1f",
-                        border: "1px solid #2a2a2a",
+                        background: "var(--color-background)",
+                        border: "1px solid var(--color-border)",
                         cursor: "pointer",
                       }}
                       onClick={action.action}
@@ -209,25 +220,27 @@ const HomePage: React.FC = () => {
                             marginRight: 12,
                           }}
                         >
-                          <span style={{ fontSize: 18, color: "#1a1a1a" }}>
+                          <span style={{ fontSize: 18, color: "var(--color-text)" }}>
                             {action.icon}
                           </span>
                         </div>
                         <div>
                           <h4
                             style={{
-                              color: "#f5f5f5",
+                              color: "var(--color-text)",
                               margin: "0 0 4px 0",
-                              fontSize: 14,
+                              fontSize: "0.9375rem",
+                              fontWeight: 500,
                             }}
                           >
                             {action.title}
                           </h4>
                           <p
                             style={{
-                              color: "#c0c0c0",
+                              color: "rgba(217, 214, 206, 0.8)",
                               margin: 0,
-                              fontSize: 12,
+                              fontSize: "0.8125rem",
+                              fontWeight: 400,
                             }}
                           >
                             {action.description}
@@ -238,71 +251,6 @@ const HomePage: React.FC = () => {
                   </Col>
                 ))}
               </Row>
-            </Card>
-
-            {/* 系统公告 */}
-            <Card
-              title={
-                <span
-                  style={{ color: "#f5f5f5", fontSize: 18, fontWeight: 500 }}
-                >
-                  系统公告
-                </span>
-              }
-              style={{ background: "#151515", border: "1px solid #2a2a2a" }}
-            >
-              <List
-                itemLayout="horizontal"
-                dataSource={[
-                  {
-                    title: "AI分析功能升级",
-                    time: "2024-01-15",
-                    type: "upgrade",
-                  },
-                  { title: "新增3D预览功能", time: "2024-01-10", type: "new" },
-                  {
-                    title: "系统维护通知",
-                    time: "2024-01-05",
-                    type: "maintenance",
-                  },
-                ]}
-                renderItem={(item) => (
-                  <List.Item
-                    style={{
-                      borderBottom: "1px solid #2a2a2a",
-                      padding: "12px 0",
-                    }}
-                  >
-                    <List.Item.Meta
-                      avatar={
-                        <div
-                          style={{
-                            width: 8,
-                            height: 8,
-                            borderRadius: "50%",
-                            background:
-                              item.type === "new"
-                                ? "#a8c090"
-                                : item.type === "upgrade"
-                                ? "#81a1c1"
-                                : "#e6b17a",
-                          }}
-                        />
-                      }
-                      title={
-                        <span style={{ color: "#f5f5f5", fontSize: 14 }}>
-                          {item.title}
-                        </span>
-                      }
-                      description={
-                        <span style={{ color: "#909090", fontSize: 12 }}>
-                          {item.time}
-                        </span>
-                      }
-                    />
-                  </List.Item>
-                )}
-              />
             </Card>
           </Col>
 
@@ -318,20 +266,29 @@ const HomePage: React.FC = () => {
                   }}
                 >
                   <span
-                    style={{ color: "#f5f5f5", fontSize: 18, fontWeight: 500 }}
+                    style={{ 
+                      color: "var(--color-text)", 
+                      fontSize: "1.125rem", 
+                      fontWeight: 600,
+                      letterSpacing: "-0.01em"
+                    }}
                   >
                     最近项目
                   </span>
                   <Button
                     type="link"
-                    style={{ color: "#a8c090", padding: 0 }}
+                    style={{ color: "var(--color-accent)", padding: 0 }}
                     onClick={() => navigate("/workspace")}
                   >
                     查看全部
                   </Button>
                 </div>
               }
-              style={{ background: "#151515", border: "1px solid #2a2a2a" }}
+              style={{ 
+                background: "var(--color-background-lighter)", 
+                border: "1px solid var(--color-border)",
+                height: "100%"
+              }}
             >
               <List
                 itemLayout="vertical"
@@ -339,7 +296,7 @@ const HomePage: React.FC = () => {
                 renderItem={(project) => (
                   <List.Item
                     style={{
-                      borderBottom: "1px solid #2a2a2a",
+                      borderBottom: "1px solid var(--color-border)",
                       padding: "16px 0",
                       cursor: "pointer",
                     }}
@@ -348,9 +305,10 @@ const HomePage: React.FC = () => {
                     <div>
                       <h4
                         style={{
-                          color: "#f5f5f5",
+                          color: "var(--color-text)",
                           margin: "0 0 8px 0",
-                          fontSize: 14,
+                          fontSize: "0.9375rem",
+                          fontWeight: 500,
                         }}
                       >
                         {project.title}
@@ -366,9 +324,9 @@ const HomePage: React.FC = () => {
                           style={{
                             background:
                               project.status === "进行中"
-                                ? "#a8c090"
-                                : "#7fb069",
-                            color: "#1a1a1a",
+                                ? "var(--color-accent)"
+                                : "#d13e00",
+                            color: "var(--color-text)",
                             padding: "2px 8px",
                             borderRadius: "12px",
                             fontSize: 10,
@@ -378,7 +336,7 @@ const HomePage: React.FC = () => {
                         </span>
                         <span
                           style={{
-                            color: "#909090",
+                            color: "rgba(217, 214, 206, 0.6)",
                             fontSize: 10,
                             marginLeft: 8,
                           }}
@@ -389,8 +347,8 @@ const HomePage: React.FC = () => {
                       <Progress
                         percent={project.progress}
                         size="small"
-                        strokeColor="#a8c090"
-                        trailColor="#2a2a2a"
+                        strokeColor="var(--color-accent)"
+                        trailColor="var(--color-border)"
                         showInfo={false}
                       />
                     </div>

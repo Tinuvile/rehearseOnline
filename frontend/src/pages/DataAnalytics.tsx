@@ -15,15 +15,15 @@ const { Content } = Layout;
 const DataAnalytics: React.FC = () => {
   return (
     <Layout
-      style={{ minHeight: "100vh", height: "auto", background: "#0a0a0a" }}
+      style={{ minHeight: "100vh", height: "auto", background: "var(--color-background)" }}
     >
       <StageHeader />
-      <Content style={{ background: "#0a0a0a", padding: "48px" }}>
+      <Content style={{ background: "var(--color-background)", padding: "48px" }}>
         <h2
           style={{
             fontSize: 30,
             fontWeight: 500,
-            color: "#f5f5f5",
+            color: "var(--color-text)",
             marginBottom: 32,
             margin: "0 0 32px 0",
           }}
@@ -34,23 +34,23 @@ const DataAnalytics: React.FC = () => {
         <Row gutter={24} style={{ marginBottom: 32 }}>
           <Col span={6}>
             <Card
-              style={{ background: "#151515", border: "1px solid #2a2a2a" }}
+              style={{ background: "var(--color-background-lighter)", border: "1px solid var(--color-border)" }}
             >
               <Statistic
-                title={<span style={{ color: "#c0c0c0" }}>项目完成率</span>}
+                title={<span style={{ color: "rgba(217, 214, 206, 0.8)" }}>项目完成率</span>}
                 value={87.5}
                 suffix="%"
-                valueStyle={{ color: "#a8c090" }}
+                valueStyle={{ color: "var(--color-accent)" }}
                 prefix={<TrophyOutlined />}
               />
             </Card>
           </Col>
           <Col span={6}>
             <Card
-              style={{ background: "#151515", border: "1px solid #2a2a2a" }}
+              style={{ background: "var(--color-background-lighter)", border: "1px solid var(--color-border)" }}
             >
               <Statistic
-                title={<span style={{ color: "#c0c0c0" }}>平均制作时间</span>}
+                title={<span style={{ color: "rgba(217, 214, 206, 0.8)" }}>平均制作时间</span>}
                 value={15.6}
                 suffix="天"
                 valueStyle={{ color: "#81a1c1" }}
@@ -60,10 +60,10 @@ const DataAnalytics: React.FC = () => {
           </Col>
           <Col span={6}>
             <Card
-              style={{ background: "#151515", border: "1px solid #2a2a2a" }}
+              style={{ background: "var(--color-background-lighter)", border: "1px solid var(--color-border)" }}
             >
               <Statistic
-                title={<span style={{ color: "#c0c0c0" }}>活跃用户数</span>}
+                title={<span style={{ color: "rgba(217, 214, 206, 0.8)" }}>活跃用户数</span>}
                 value={23}
                 valueStyle={{ color: "#e6b17a" }}
                 prefix={<UserOutlined />}
@@ -72,10 +72,10 @@ const DataAnalytics: React.FC = () => {
           </Col>
           <Col span={6}>
             <Card
-              style={{ background: "#151515", border: "1px solid #2a2a2a" }}
+              style={{ background: "var(--color-background-lighter)", border: "1px solid var(--color-border)" }}
             >
               <Statistic
-                title={<span style={{ color: "#c0c0c0" }}>AI使用率</span>}
+                title={<span style={{ color: "rgba(217, 214, 206, 0.8)" }}>AI使用率</span>}
                 value={92.3}
                 suffix="%"
                 valueStyle={{ color: "#d08770" }}
@@ -88,10 +88,10 @@ const DataAnalytics: React.FC = () => {
         <Row gutter={24}>
           <Col span={12}>
             <Card
-              title={<span style={{ color: "#f5f5f5" }}>项目类型分布</span>}
+              title={<span style={{ color: "var(--color-text)" }}>项目类型分布</span>}
               style={{
-                background: "#151515",
-                border: "1px solid #2a2a2a",
+                background: "var(--color-background-lighter)",
+                border: "1px solid var(--color-border)",
                 marginBottom: 24,
               }}
             >
@@ -105,19 +105,19 @@ const DataAnalytics: React.FC = () => {
               >
                 <div style={{ textAlign: "center" }}>
                   <PieChartOutlined
-                    style={{ fontSize: 48, color: "#a8c090", marginBottom: 16 }}
+                    style={{ fontSize: 48, color: "var(--color-accent)", marginBottom: 16 }}
                   />
-                  <p style={{ color: "#c0c0c0" }}>图表组件将在此处显示</p>
+                  <p style={{ color: "rgba(217, 214, 206, 0.8)" }}>图表组件将在此处显示</p>
                 </div>
               </div>
             </Card>
           </Col>
           <Col span={12}>
             <Card
-              title={<span style={{ color: "#f5f5f5" }}>月度趋势</span>}
+              title={<span style={{ color: "var(--color-text)" }}>月度趋势</span>}
               style={{
-                background: "#151515",
-                border: "1px solid #2a2a2a",
+                background: "var(--color-background-lighter)",
+                border: "1px solid var(--color-border)",
                 marginBottom: 24,
               }}
             >
@@ -133,7 +133,7 @@ const DataAnalytics: React.FC = () => {
                   <LineChartOutlined
                     style={{ fontSize: 48, color: "#81a1c1", marginBottom: 16 }}
                   />
-                  <p style={{ color: "#c0c0c0" }}>图表组件将在此处显示</p>
+                  <p style={{ color: "rgba(217, 214, 206, 0.8)" }}>图表组件将在此处显示</p>
                 </div>
               </div>
             </Card>
@@ -141,8 +141,8 @@ const DataAnalytics: React.FC = () => {
         </Row>
 
         <Card
-          title={<span style={{ color: "#f5f5f5" }}>功能使用情况</span>}
-          style={{ background: "#151515", border: "1px solid #2a2a2a" }}
+          title={<span style={{ color: "var(--color-text)" }}>功能使用情况</span>}
+          style={{ background: "var(--color-background-lighter)", border: "1px solid var(--color-border)" }}
         >
           <Row gutter={24}>
             <Col span={8}>
@@ -154,13 +154,13 @@ const DataAnalytics: React.FC = () => {
                     marginBottom: 8,
                   }}
                 >
-                  <span style={{ color: "#c0c0c0" }}>视频分析</span>
-                  <span style={{ color: "#a8c090" }}>85%</span>
+                  <span style={{ color: "rgba(217, 214, 206, 0.8)" }}>视频分析</span>
+                  <span style={{ color: "var(--color-accent)" }}>85%</span>
                 </div>
                 <Progress
                   percent={85}
-                  strokeColor="#a8c090"
-                  trailColor="#2a2a2a"
+                  strokeColor="var(--color-accent)"
+                  trailColor="var(--color-border)"
                 />
               </div>
             </Col>
@@ -173,13 +173,13 @@ const DataAnalytics: React.FC = () => {
                     marginBottom: 8,
                   }}
                 >
-                  <span style={{ color: "#c0c0c0" }}>舞台编辑</span>
+                  <span style={{ color: "rgba(217, 214, 206, 0.8)" }}>舞台编辑</span>
                   <span style={{ color: "#81a1c1" }}>92%</span>
                 </div>
                 <Progress
                   percent={92}
                   strokeColor="#81a1c1"
-                  trailColor="#2a2a2a"
+                  trailColor="var(--color-border)"
                 />
               </div>
             </Col>
@@ -192,13 +192,13 @@ const DataAnalytics: React.FC = () => {
                     marginBottom: 8,
                   }}
                 >
-                  <span style={{ color: "#c0c0c0" }}>AI建议</span>
+                  <span style={{ color: "rgba(217, 214, 206, 0.8)" }}>AI建议</span>
                   <span style={{ color: "#e6b17a" }}>76%</span>
                 </div>
                 <Progress
                   percent={76}
                   strokeColor="#e6b17a"
-                  trailColor="#2a2a2a"
+                  trailColor="var(--color-border)"
                 />
               </div>
             </Col>

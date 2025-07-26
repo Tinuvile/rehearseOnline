@@ -53,7 +53,7 @@ const TeamManagement: React.FC = () => {
       render: (text: string) => (
         <div style={{ display: "flex", alignItems: "center" }}>
           <Avatar icon={<UserOutlined />} style={{ marginRight: 8 }} />
-          <span style={{ color: "#f5f5f5" }}>{text}</span>
+          <span style={{ color: "var(--color-text)" }}>{text}</span>
         </div>
       ),
     },
@@ -61,7 +61,7 @@ const TeamManagement: React.FC = () => {
       title: "角色",
       dataIndex: "role",
       render: (text: string) => (
-        <span style={{ color: "#c0c0c0" }}>{text}</span>
+        <span style={{ color: "rgba(217, 214, 206, 0.8)" }}>{text}</span>
       ),
     },
     {
@@ -75,7 +75,7 @@ const TeamManagement: React.FC = () => {
       title: "参与项目",
       dataIndex: "projects",
       render: (count: number) => (
-        <span style={{ color: "#a8c090" }}>{count}</span>
+        <span style={{ color: "var(--color-accent)" }}>{count}</span>
       ),
     },
     {
@@ -85,7 +85,7 @@ const TeamManagement: React.FC = () => {
           <Button
             type="text"
             icon={<EditOutlined />}
-            style={{ color: "#c0c0c0", marginRight: 8 }}
+            style={{ color: "rgba(217, 214, 206, 0.8)", marginRight: 8 }}
           />
           <Button
             type="text"
@@ -99,10 +99,10 @@ const TeamManagement: React.FC = () => {
 
   return (
     <Layout
-      style={{ minHeight: "100vh", height: "auto", background: "#0a0a0a" }}
+      style={{ minHeight: "100vh", height: "auto", background: "var(--color-background)" }}
     >
       <StageHeader />
-      <Content style={{ background: "#0a0a0a", padding: "48px" }}>
+      <Content style={{ background: "var(--color-background)", padding: "48px" }}>
         <div
           style={{
             display: "flex",
@@ -115,7 +115,7 @@ const TeamManagement: React.FC = () => {
             style={{
               fontSize: 30,
               fontWeight: 500,
-              color: "#f5f5f5",
+              color: "var(--color-text)",
               margin: 0,
             }}
           >
@@ -125,9 +125,9 @@ const TeamManagement: React.FC = () => {
             type="primary"
             icon={<PlusOutlined />}
             style={{
-              background: "#a8c090",
-              borderColor: "#a8c090",
-              color: "#1a1a1a",
+              background: "var(--color-accent)",
+              borderColor: "var(--color-accent)",
+              color: "var(--color-text)",
             }}
           >
             邀请成员
@@ -138,70 +138,70 @@ const TeamManagement: React.FC = () => {
           <Col span={6}>
             <Card
               style={{
-                background: "#151515",
-                border: "1px solid #2a2a2a",
+                background: "var(--color-background-lighter)",
+                border: "1px solid var(--color-border)",
                 textAlign: "center",
               }}
             >
               <h3
-                style={{ color: "#f5f5f5", fontSize: 24, margin: "0 0 8px 0" }}
+                style={{ color: "var(--color-text)", fontSize: 24, margin: "0 0 8px 0" }}
               >
                 4
               </h3>
-              <p style={{ color: "#c0c0c0", margin: 0 }}>团队成员</p>
+              <p style={{ color: "rgba(217, 214, 206, 0.8)", margin: 0 }}>团队成员</p>
             </Card>
           </Col>
           <Col span={6}>
             <Card
               style={{
-                background: "#151515",
-                border: "1px solid #2a2a2a",
+                background: "var(--color-background-lighter)",
+                border: "1px solid var(--color-border)",
                 textAlign: "center",
               }}
             >
               <h3
-                style={{ color: "#f5f5f5", fontSize: 24, margin: "0 0 8px 0" }}
+                style={{ color: "var(--color-text)", fontSize: 24, margin: "0 0 8px 0" }}
               >
                 18
               </h3>
-              <p style={{ color: "#c0c0c0", margin: 0 }}>总项目数</p>
+              <p style={{ color: "rgba(217, 214, 206, 0.8)", margin: 0 }}>总项目数</p>
             </Card>
           </Col>
           <Col span={6}>
             <Card
               style={{
-                background: "#151515",
-                border: "1px solid #2a2a2a",
+                background: "var(--color-background-lighter)",
+                border: "1px solid var(--color-border)",
                 textAlign: "center",
               }}
             >
               <h3
-                style={{ color: "#f5f5f5", fontSize: 24, margin: "0 0 8px 0" }}
+                style={{ color: "var(--color-text)", fontSize: 24, margin: "0 0 8px 0" }}
               >
                 3
               </h3>
-              <p style={{ color: "#c0c0c0", margin: 0 }}>在线成员</p>
+              <p style={{ color: "rgba(217, 214, 206, 0.8)", margin: 0 }}>在线成员</p>
             </Card>
           </Col>
           <Col span={6}>
             <Card
               style={{
-                background: "#151515",
-                border: "1px solid #2a2a2a",
+                background: "var(--color-background-lighter)",
+                border: "1px solid var(--color-border)",
                 textAlign: "center",
               }}
             >
               <h3
-                style={{ color: "#f5f5f5", fontSize: 24, margin: "0 0 8px 0" }}
+                style={{ color: "var(--color-text)", fontSize: 24, margin: "0 0 8px 0" }}
               >
                 92%
               </h3>
-              <p style={{ color: "#c0c0c0", margin: 0 }}>协作效率</p>
+              <p style={{ color: "rgba(217, 214, 206, 0.8)", margin: 0 }}>协作效率</p>
             </Card>
           </Col>
         </Row>
 
-        <Card style={{ background: "#151515", border: "1px solid #2a2a2a" }}>
+        <Card style={{ background: "var(--color-background-lighter)", border: "1px solid var(--color-border)" }}>
           <Table
             columns={columns}
             dataSource={teamMembers}

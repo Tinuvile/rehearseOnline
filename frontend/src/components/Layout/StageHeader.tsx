@@ -154,8 +154,8 @@ const StageHeader: React.FC = () => {
   return (
     <Header
       style={{
-        background: "#151515",
-        borderBottom: "1px solid #2a2a2a",
+        background: "var(--color-background-lighter)",
+        borderBottom: "1px solid var(--color-border)",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
@@ -170,7 +170,7 @@ const StageHeader: React.FC = () => {
         {/* Logo */}
         <div
           style={{
-            color: "#a8c090",
+            color: "var(--color-accent)",
             fontSize: 20,
             fontWeight: "bold",
             marginRight: 48,
@@ -201,7 +201,7 @@ const StageHeader: React.FC = () => {
           <Button
             type="text"
             icon={<BellOutlined />}
-            style={{ color: "#f5f5f5" }}
+            style={{ color: "var(--color-text)" }}
             onClick={() => setNotificationVisible(true)}
           />
           {unreadCount > 0 && (
@@ -219,7 +219,7 @@ const StageHeader: React.FC = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                border: "1px solid #151515",
+                border: "1px solid var(--color-background)",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
               }}
             >
@@ -238,14 +238,14 @@ const StageHeader: React.FC = () => {
             borderRadius: "6px",
             transition: "background-color 0.2s",
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "#1f1f1f")}
+          onMouseEnter={(e) => (e.currentTarget.style.background = "var(--color-border)")}
           onMouseLeave={(e) =>
             (e.currentTarget.style.background = "transparent")
           }
           onClick={() => setUserMenuVisible(true)}
         >
           <Avatar size={32} src="/avatar.svg" style={{ marginRight: 8 }} />
-          <span style={{ color: "#f5f5f5", fontSize: 14 }}>林设计师</span>
+          <span style={{ color: "var(--color-text)", fontSize: 14 }}>林设计师</span>
         </div>
       </div>
 
@@ -263,7 +263,7 @@ const StageHeader: React.FC = () => {
               key={notification.id}
               style={{
                 padding: "12px 0",
-                borderBottom: "1px solid #2a2a2a",
+                borderBottom: "1px solid var(--color-border)",
                 opacity: notification.read ? 0.6 : 1,
               }}
             >
@@ -277,7 +277,7 @@ const StageHeader: React.FC = () => {
               >
                 <h4
                   style={{
-                    color: "#f5f5f5",
+                    color: "var(--color-text)",
                     margin: 0,
                     fontSize: 14,
                     fontWeight: notification.read ? "normal" : "bold",
@@ -285,11 +285,11 @@ const StageHeader: React.FC = () => {
                 >
                   {notification.title}
                 </h4>
-                <span style={{ color: "#909090", fontSize: 12 }}>
+                <span style={{ color: "rgba(217, 214, 206, 0.6)", fontSize: 12 }}>
                   {notification.time}
                 </span>
               </div>
-              <p style={{ color: "#c0c0c0", margin: 0, fontSize: 12 }}>
+              <p style={{ color: "rgba(217, 214, 206, 0.8)", margin: 0, fontSize: 12 }}>
                 {notification.content}
               </p>
             </div>
