@@ -11,7 +11,7 @@ import moviepy.editor as mpy
 from typing import List, Dict, Any, Optional, Tuple
 from pathlib import Path
 
-from models.data_models import TranscriptSegment
+from backend.models.data_models import TranscriptSegment
 from .asr_config import asr_config
 
 # 配置日志

@@ -1,204 +1,319 @@
-import axios from 'axios';
-import { 
-  VideoUploadResponse, 
-  AnalysisResult, 
-  TimelineData, 
-  Actor, 
-  Project,
-  MovementSuggestion,
-  LightingSuggestion,
-  MusicSuggestion
-} from '../types';
+/**
+ * API服务 - 前后端通信接口
+ */
 
-// 创建axios实例
-const api = axios.create({
-  baseURL: '/api',
-  timeout: 30000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+const API_BASE_URL = "http://localhost:8000";
 
-// 请求拦截器
-api.interceptors.request.use(
-  (config) => {
-    console.log('API Request:', config.method?.toUpperCase(), config.url);
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+// API响应类型
+interface ApiResponse<T = any> {
+  success?: boolean;
+  message?: string;
+  data?: T;
+  error?: string;
+}
+
+// 视频上传响应
+interface VideoUploadResponse {
+  success: boolean;
+  video_id: string;
+  filename: string;
+  total_segments: number;
+  total_duration: number;
+  speaker_count: number;
+  transcripts: any[];
+  speaker_statistics: any;
+  full_text: string;
+  srt_content: string;
+}
+
+// 舞台台词格式响应
+interface StageDialogueResponse {
+  success: boolean;
+  video_id: string;
+  total_dialogues: number;
+  dialogues: any[];
+  speaker_mapping: Record<string, string>;
+  note: string;
+}
+
+/**
+ * 上传视频并提取台词
+ */
+export const uploadVideoForDialogue = async (
+  file: File,
+  language: string = "zh",
+  enableSpeakerDiarization: boolean = true,
+  hotwords: string = ""
+): Promise<VideoUploadResponse> => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("language", language);
+  formData.append(
+    "enable_speaker_diarization",
+    enableSpeakerDiarization.toString()
+  );
+  formData.append("hotwords", hotwords);
+
+  const response = await fetch(`${API_BASE_URL}/api/dialogue/upload-video`, {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const errorData = await response
+      .json()
+      .catch(() => ({ error: "网络错误" }));
+    throw new Error(
+      errorData.detail || errorData.error || `HTTP ${response.status}`
+    );
   }
-);
 
-// 响应拦截器
-api.interceptors.response.use(
-  (response) => {
-    console.log('API Response:', response.status, response.config.url);
-    return response;
-  },
-  (error) => {
-    console.error('API Error:', error.response?.status, error.response?.data);
-    return Promise.reject(error);
-  }
-);
-
-// 视频相关API
-export const videoApi = {
-  // 上传视频
-  uploadVideo: async (file: File): Promise<VideoUploadResponse> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    const response = await api.post('/video/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    
-    return response.data;
-  },
-
-  // 获取视频信息
-  getVideoInfo: async (videoId: string) => {
-    const response = await api.get(`/video/${videoId}/info`);
-    return response.data;
-  },
-
-  // 获取分析结果
-  getAnalysisResult: async (videoId: string): Promise<AnalysisResult> => {
-    const response = await api.get(`/video/${videoId}/analysis`);
-    return response.data;
-  },
-
-  // 处理视频
-  processVideo: async (videoId: string) => {
-    const response = await api.post(`/video/${videoId}/process`);
-    return response.data;
-  },
-
-  // 获取视频列表
-  getVideoList: async () => {
-    const response = await api.get('/video/');
-    return response.data;
-  },
+  return await response.json();
 };
 
-// 舞台管理相关API
+/**
+ * 获取视频的台词信息
+ */
+export const getVideoDialogues = async (
+  videoId: string
+): Promise<ApiResponse> => {
+  const response = await fetch(
+    `${API_BASE_URL}/api/dialogue/video/${videoId}/dialogues`
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * 将视频台词转换为舞台编辑器格式
+ */
+export const convertVideoToStageFormat = async (
+  videoId: string
+): Promise<StageDialogueResponse> => {
+  const response = await fetch(
+    `${API_BASE_URL}/api/dialogue/video/${videoId}/convert-to-stage`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const errorData = await response
+      .json()
+      .catch(() => ({ error: "转换失败" }));
+    throw new Error(
+      errorData.detail || errorData.error || `HTTP ${response.status}`
+    );
+  }
+
+  return await response.json();
+};
+
+/**
+ * 导出台词（JSON/SRT/TXT格式）
+ */
+export const exportVideoDialogues = async (
+  videoId: string,
+  format: "json" | "srt" | "txt" = "json"
+): Promise<ApiResponse> => {
+  const formData = new FormData();
+  formData.append("format", format);
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/dialogue/video/${videoId}/export-dialogues`,
+    {
+      method: "POST",
+      body: formData,
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * 获取支持的文件格式
+ */
+export const getSupportedFormats = async (): Promise<ApiResponse> => {
+  const response = await fetch(
+    `${API_BASE_URL}/api/dialogue/supported-formats`
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * 健康检查
+ */
+export const healthCheck = async (): Promise<ApiResponse> => {
+  const response = await fetch(`${API_BASE_URL}/health`);
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * 舞台管理API
+ */
 export const stageApi = {
   // 获取当前项目
-  getCurrentProject: async (): Promise<{ project: Project }> => {
-    const response = await api.get('/stage/project');
-    return response.data;
-  },
-
-  // 获取项目数据
-  getProjectData: async (projectId: string) => {
-    const response = await api.get(`/stage/project/${projectId}`);
-    return response.data;
+  getCurrentProject: async (): Promise<ApiResponse> => {
+    const response = await fetch(`${API_BASE_URL}/api/stage/project`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
   },
 
   // 获取所有演员
-  getAllActors: async (): Promise<{ actors: Actor[]; count: number }> => {
-    const response = await api.get('/stage/actors');
-    return response.data;
+  getAllActors: async (): Promise<ApiResponse> => {
+    const response = await fetch(`${API_BASE_URL}/api/stage/actors`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
   },
 
   // 创建演员
-  createActor: async (name: string, color: string = '#FF5733'): Promise<{ actor: Actor }> => {
-    const response = await api.post('/stage/actors', { name, color });
-    return response.data;
-  },
-
-  // 获取演员信息
-  getActor: async (actorId: string): Promise<{ actor: Actor }> => {
-    const response = await api.get(`/stage/actors/${actorId}`);
-    return response.data;
+  createActor: async (
+    name: string,
+    color: string = "#FF5733"
+  ): Promise<ApiResponse> => {
+    const response = await fetch(`${API_BASE_URL}/api/stage/actors`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, color }),
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
   },
 
   // 更新演员位置
   updateActorPosition: async (
-    actorId: string, 
-    position: { x: number; y: number }, 
-    timestamp: number, 
-    videoId: string
-  ) => {
-    const response = await api.put(
-      `/stage/actors/${actorId}/position?timestamp=${timestamp}&video_id=${videoId}`,
-      position
+    actorId: string,
+    position: { x: number; y: number },
+    timestamp: number
+  ): Promise<ApiResponse> => {
+    const response = await fetch(
+      `${API_BASE_URL}/api/stage/actors/${actorId}/position`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          x: position.x,
+          y: position.y,
+          timestamp,
+        }),
+      }
     );
-    return response.data;
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
   },
 
   // 获取时间轴数据
-  getTimelineData: async (videoId: string): Promise<TimelineData> => {
-    const response = await api.get(`/stage/timeline/${videoId}`);
-    return response.data;
+  getTimelineData: async (videoId: string): Promise<ApiResponse> => {
+    const response = await fetch(
+      `${API_BASE_URL}/api/stage/timeline/${videoId}`
+    );
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
   },
 };
 
-// AI建议相关API
-export const aiApi = {
-  // 获取走位建议
-  getMovementSuggestions: async (videoId: string, actorId: string): Promise<{
-    suggestions: MovementSuggestion[];
-    video_id: string;
-    actor_id: string;
-  }> => {
-    const response = await api.post('/ai/movement-suggestions', {
-      video_id: videoId,
-      actor_id: actorId,
+/**
+ * 视频分析API
+ */
+export const videoApi = {
+  // 上传视频进行分析
+  uploadVideo: async (file: File): Promise<ApiResponse> => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetch(`${API_BASE_URL}/api/video/upload`, {
+      method: "POST",
+      body: formData,
     });
-    return response.data;
+
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
   },
 
-  // 获取灯光建议
-  getLightingSuggestions: async (videoId: string): Promise<{
-    suggestions: LightingSuggestion[];
-    video_id: string;
-  }> => {
-    const response = await api.post('/ai/lighting-suggestions', {
-      video_id: videoId,
-    });
-    return response.data;
+  // 处理视频
+  processVideo: async (videoId: string): Promise<ApiResponse> => {
+    const response = await fetch(
+      `${API_BASE_URL}/api/video/${videoId}/process`,
+      {
+        method: "POST",
+      }
+    );
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
   },
 
-  // 获取音乐建议
-  getMusicSuggestions: async (videoId: string): Promise<{
-    suggestions: MusicSuggestion[];
-    video_id: string;
-  }> => {
-    const response = await api.post('/ai/music-suggestions', {
-      video_id: videoId,
-    });
-    return response.data;
-  },
-
-  // 应用建议
-  applySuggestion: async (suggestionType: 'lighting' | 'music', suggestionData: any) => {
-    const response = await api.post(`/ai/apply-suggestion?suggestion_type=${suggestionType}`, suggestionData);
-    return response.data;
-  },
-
-  // 获取情感分析
-  getEmotionAnalysis: async (videoId: string) => {
-    const response = await api.get(`/ai/emotions/${videoId}`);
-    return response.data;
+  // 获取视频分析结果
+  getAnalysisResult: async (videoId: string): Promise<ApiResponse> => {
+    const response = await fetch(
+      `${API_BASE_URL}/api/video/${videoId}/analysis`
+    );
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
   },
 };
 
-// 通用API工具
+/**
+ * API工具函数
+ */
 export const apiUtils = {
-  // 健康检查
-  healthCheck: async () => {
-    const response = await api.get('/health', { baseURL: '' });
-    return response.data;
+  // 格式化错误信息
+  formatError: (error: any): string => {
+    return handleApiError(error);
   },
 
-  // 获取系统信息
-  getSystemInfo: async () => {
-    const response = await api.get('/', { baseURL: '' });
-    return response.data;
+  // 检查网络连接
+  checkConnection: async (): Promise<boolean> => {
+    return await checkBackendConnection();
+  },
+
+  // 获取基础URL
+  getBaseUrl: (): string => {
+    return API_BASE_URL;
   },
 };
 
-export default api;
+/**
+ * 错误处理工具
+ */
+export const handleApiError = (error: any): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  if (typeof error === "string") {
+    return error;
+  }
+  return "未知错误";
+};
+
+/**
+ * 检查后端连接状态
+ */
+export const checkBackendConnection = async (): Promise<boolean> => {
+  try {
+    await healthCheck();
+    return true;
+  } catch {
+    return false;
+  }
+};

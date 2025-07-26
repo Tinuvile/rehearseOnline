@@ -6,11 +6,11 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Dict, Any
 from pydantic import BaseModel
 
-from models.data_models import (
+from backend.models.data_models import (
     LightingCue, MusicCue, LightState, RGB, 
     dataclass_to_dict
 )
-from core.data_store import InMemoryDataStore
+from backend.core.data_store import InMemoryDataStore
 
 router = APIRouter()
 
@@ -31,7 +31,7 @@ class ActorlineSuggestionRequest(BaseModel):
 
 # 依赖注入：获取数据存储实例
 def get_data_store() -> InMemoryDataStore:
-    from main import data_store
+    from backend.main import data_store
     return data_store
 
 @router.post("/movement-suggestions")

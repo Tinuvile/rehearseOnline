@@ -5,14 +5,15 @@
 import json
 import os
 import logging
+import uuid
 from typing import Dict, List, Optional, Any
 from datetime import datetime
 
-from models.data_models import (
+from backend.models.data_models import (
     Project, Video, Actor, TranscriptSegment, ActorPosition,
     LightingCue, MusicCue, dataclass_to_dict, dict_to_dataclass
 )
-from models.validators import (
+from backend.models.validators import (
     validate_project, validate_video, validate_actor,
     validate_transcript_segment, validate_actor_position,
     validate_lighting_cue, validate_music_cue
@@ -36,6 +37,64 @@ class InMemoryDataStore:
         
         # 当前活动项目
         self.current_project_id: Optional[str] = None
+    
+    def generate_video_id(self) -> str:
+        """生成唯一的视频ID"""
+        return str(uuid.uuid4())
+    
+    def save_video_data(self, video_id: str, video_data: Dict[str, Any]) -> None:
+        """保存视频数据和转录信息"""
+        # 创建Video对象
+        video = Video(
+            id=video_id,
+            filename=video_data.get("filename", "unknown"),
+            file_path=video_data.get("file_path", ""),
+            created_at=datetime.now().isoformat()
+        )
+        self.videos[video_id] = video
+        
+        # 保存转录片段
+        if "transcripts" in video_data:
+            transcripts = []
+            for segment_data in video_data["transcripts"]:
+                segment = TranscriptSegment(**segment_data)
+                transcripts.append(segment)
+            self.transcripts[video_id] = transcripts
+    
+    def get_video_data(self, video_id: str) -> Optional[Dict[str, Any]]:
+        """获取视频数据和转录信息"""
+        video = self.videos.get(video_id)
+        if not video:
+            return None
+            
+        # 组装视频数据
+        video_data = {
+            "id": video.id,
+            "filename": video.filename,
+            "file_path": video.file_path,
+            "duration": video.duration,
+            "fps": video.fps,
+            "resolution": video.resolution,
+            "status": video.status,
+            "created_at": video.created_at,
+            "transcripts": []
+        }
+        
+        # 添加转录数据
+        transcripts = self.transcripts.get(video_id, [])
+        video_data["transcripts"] = [
+            {
+                "id": t.id,
+                "text": t.text, 
+                "start_time": t.start_time,
+                "end_time": t.end_time,
+                "speaker_id": t.speaker_id,
+                "confidence": t.confidence,
+                "emotion": t.emotion
+            } for t in transcripts
+        ]
+        
+        return video_data
     
     def create_project(self, name: str, description: str = "") -> Project:
         """创建新项目"""

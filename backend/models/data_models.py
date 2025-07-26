@@ -47,6 +47,18 @@ class TranscriptSegment:
             confidence=confidence,
             emotion=emotion
         )
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """将TranscriptSegment对象转换为字典"""
+        return {
+            "id": self.id,
+            "text": self.text,
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+            "speaker_id": self.speaker_id,
+            "confidence": self.confidence,
+            "emotion": self.emotion
+        }
 
 @dataclass
 class ActorPosition:

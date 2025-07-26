@@ -9,10 +9,10 @@ import shutil
 import logging
 from pathlib import Path
 
-from models.data_models import Video, dataclass_to_dict
-from core.data_store import InMemoryDataStore
-from core.video_processor import video_processor
-from core.audio_processor import audio_processor
+from backend.models.data_models import Video, dataclass_to_dict
+from backend.core.data_store import InMemoryDataStore
+from backend.core.video_processor import video_processor
+from backend.core.audio_processor import audio_processor
 
 # 配置日志
 logging.basicConfig(level=logging.INFO)
@@ -22,7 +22,7 @@ router = APIRouter()
 
 # 依赖注入：获取数据存储实例
 def get_data_store() -> InMemoryDataStore:
-    from main import data_store
+    from backend.main import data_store
     return data_store
 
 @router.post("/upload")

@@ -27,8 +27,8 @@ class VideoProcessor:
         '.webm': 'video/webm'
     }
     
-    # 最大文件大小 (500MB)
-    MAX_FILE_SIZE = 500 * 1024 * 1024
+    # 最大文件大小 (200MB)
+    MAX_FILE_SIZE = 200 * 1024 * 1024
     
     def __init__(self):
         self.temp_dir = Path("temp")

@@ -12,6 +12,8 @@ import {
   message,
   Popconfirm,
   ColorPicker,
+  Switch,
+  Slider,
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import {
@@ -26,10 +28,20 @@ import {
   PlusOutlined,
   MinusOutlined,
   PlayCircleOutlined,
+  PauseCircleOutlined,
   KeyOutlined,
   ThunderboltOutlined,
+  EyeOutlined,
+  StopOutlined,
 } from "@ant-design/icons";
 import StageHeader from "../components/Layout/StageHeader";
+import DialoguePanel from "../components/DialoguePanel/DialoguePanel";
+import {
+  samplePreviewData,
+  getActorPositionAtTime,
+  getDialoguesAtTime,
+  type SampleDialogue,
+} from "../data/sampleData";
 
 const { Sider, Content } = Layout;
 
@@ -171,6 +183,16 @@ const StageEditor: React.FC = () => {
     null
   );
 
+  // 预览模式相关状态
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [previewCurrentTime, setPreviewCurrentTime] = useState(0); // 预览时间（秒）
+  const [previewPlayInterval, setPreviewPlayInterval] =
+    useState<NodeJS.Timeout | null>(null);
+  const [previewActorPositions, setPreviewActorPositions] = useState<{
+    [actorId: number]: { x: number; y: number };
+  }>({});
+  const [playbackSpeed, setPlaybackSpeed] = useState(1); // 播放速度倍率
+
   // 模态框状态
   const [addActorModalVisible, setAddActorModalVisible] = useState(false);
   const [addElementModalVisible, setAddElementModalVisible] = useState(false);
@@ -275,6 +297,47 @@ const StageEditor: React.FC = () => {
           icon: "🪑",
         },
       ]);
+
+      // 尝试从localStorage加载提取的台词数据
+      let loadedDialogues: Dialogue[] = [];
+
+      try {
+        const extractedDialogues = localStorage.getItem("extractedDialogues");
+        const videoAnalysisResult = localStorage.getItem("videoAnalysisResult");
+
+        if (extractedDialogues) {
+          const parsedDialogues = JSON.parse(extractedDialogues);
+          loadedDialogues = parsedDialogues;
+
+          if (videoAnalysisResult) {
+            const analysisData = JSON.parse(videoAnalysisResult);
+            message.success(
+              `已加载从视频"${analysisData.filename}"中提取的 ${parsedDialogues.length} 条台词`
+            );
+          }
+
+          // 清除localStorage中的数据，避免重复使用
+          localStorage.removeItem("extractedDialogues");
+          localStorage.removeItem("videoAnalysisResult");
+        }
+      } catch (error) {
+        console.error("加载提取的台词数据失败:", error);
+      }
+
+      // 如果没有从视频提取的台词，使用样例数据
+      if (loadedDialogues.length === 0) {
+        loadedDialogues = samplePreviewData.dialogues.map((dialogue) => ({
+          id: dialogue.id,
+          actorId: dialogue.actorId,
+          content: dialogue.content,
+          startTime: dialogue.startTime,
+          duration: dialogue.duration,
+          emotion: dialogue.emotion,
+          volume: dialogue.volume,
+        }));
+      }
+
+      setDialogues(loadedDialogues);
     }
   }, [actors.length]);
 
@@ -364,6 +427,132 @@ const StageEditor: React.FC = () => {
     }
 
     return tracks;
+  };
+
+  // 预览模式相关函数
+  const startPreview = () => {
+    setIsPreviewMode(true);
+    setPreviewCurrentTime(0);
+    setIsPlaying(true);
+
+    // 初始化演员位置
+    const initialPositions: { [actorId: number]: { x: number; y: number } } =
+      {};
+    actors.forEach((actor) => {
+      const position = getActorPositionAtTime(actor.id, 0);
+      initialPositions[actor.id] = position;
+    });
+    setPreviewActorPositions(initialPositions);
+
+    // 开始播放动画
+    const interval = setInterval(() => {
+      setPreviewCurrentTime((prevTime) => {
+        const newTime = prevTime + 0.1 * playbackSpeed; // 每100ms更新一次，考虑播放速度
+
+        if (newTime >= samplePreviewData.totalDuration) {
+          setIsPlaying(false);
+          clearInterval(interval);
+          setPreviewPlayInterval(null);
+          return samplePreviewData.totalDuration;
+        }
+
+        // 更新演员位置
+        const newPositions: { [actorId: number]: { x: number; y: number } } =
+          {};
+        actors.forEach((actor) => {
+          const position = getActorPositionAtTime(actor.id, newTime);
+          newPositions[actor.id] = position;
+        });
+        setPreviewActorPositions(newPositions);
+
+        return newTime;
+      });
+    }, 100 / playbackSpeed); // 根据播放速度调整间隔
+
+    setPreviewPlayInterval(interval);
+    message.success("开始预览模式");
+  };
+
+  const pausePreview = () => {
+    setIsPlaying(false);
+    if (previewPlayInterval) {
+      clearInterval(previewPlayInterval);
+      setPreviewPlayInterval(null);
+    }
+  };
+
+  const resumePreview = () => {
+    if (!isPreviewMode) return;
+
+    setIsPlaying(true);
+    const interval = setInterval(() => {
+      setPreviewCurrentTime((prevTime) => {
+        const newTime = prevTime + 0.1 * playbackSpeed;
+
+        if (newTime >= samplePreviewData.totalDuration) {
+          setIsPlaying(false);
+          clearInterval(interval);
+          setPreviewPlayInterval(null);
+          return samplePreviewData.totalDuration;
+        }
+
+        // 更新演员位置
+        const newPositions: { [actorId: number]: { x: number; y: number } } =
+          {};
+        actors.forEach((actor) => {
+          const position = getActorPositionAtTime(actor.id, newTime);
+          newPositions[actor.id] = position;
+        });
+        setPreviewActorPositions(newPositions);
+
+        return newTime;
+      });
+    }, 100 / playbackSpeed);
+
+    setPreviewPlayInterval(interval);
+  };
+
+  const stopPreview = () => {
+    setIsPreviewMode(false);
+    setIsPlaying(false);
+    setPreviewCurrentTime(0);
+    setPreviewActorPositions({});
+
+    if (previewPlayInterval) {
+      clearInterval(previewPlayInterval);
+      setPreviewPlayInterval(null);
+    }
+
+    message.info("退出预览模式");
+  };
+
+  const seekToTime = (time: number) => {
+    setPreviewCurrentTime(time);
+
+    // 更新演员位置
+    const newPositions: { [actorId: number]: { x: number; y: number } } = {};
+    actors.forEach((actor) => {
+      const position = getActorPositionAtTime(actor.id, time);
+      newPositions[actor.id] = position;
+    });
+    setPreviewActorPositions(newPositions);
+  };
+
+  const formatTimeDisplay = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    const centiseconds = Math.floor((seconds % 1) * 100);
+    return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
+      .toString()
+      .padStart(2, "0")}.${centiseconds.toString().padStart(2, "0")}`;
+  };
+
+  // 获取演员当前位置（预览模式或编辑模式）
+  const getActorDisplayPosition = (actor: Actor) => {
+    if (isPreviewMode && previewActorPositions[actor.id]) {
+      return previewActorPositions[actor.id];
+    }
+    return { x: actor.x, y: actor.y };
   };
 
   const handleToolClick = (toolKey: string) => {
@@ -716,8 +905,16 @@ const StageEditor: React.FC = () => {
 
   // 时间轴控制
   const togglePlayback = () => {
-    setIsPlaying(!isPlaying);
-    message.info(isPlaying ? "暂停播放" : "开始播放");
+    if (isPreviewMode) {
+      if (isPlaying) {
+        pausePreview();
+      } else {
+        resumePreview();
+      }
+    } else {
+      setIsPlaying(!isPlaying);
+      message.info(isPlaying ? "暂停播放" : "开始播放");
+    }
   };
 
   const addKeyframe = () => {
@@ -1241,13 +1438,25 @@ const StageEditor: React.FC = () => {
               >
                 重做
               </Button>
-              <Button
-                type="text"
-                onClick={() => console.log("预览")}
-                style={{ color: "#c0c0c0", fontSize: 12 }}
-              >
-                预览
-              </Button>
+              {!isPreviewMode ? (
+                <Button
+                  type="text"
+                  onClick={startPreview}
+                  style={{ color: "#c0c0c0", fontSize: 12 }}
+                  icon={<EyeOutlined />}
+                >
+                  预览
+                </Button>
+              ) : (
+                <Button
+                  type="text"
+                  onClick={stopPreview}
+                  style={{ color: "#ff4d4f", fontSize: 12 }}
+                  icon={<StopOutlined />}
+                >
+                  退出预览
+                </Button>
+              )}
               <Button
                 onClick={() => console.log("保存")}
                 style={{
@@ -1629,68 +1838,82 @@ const StageEditor: React.FC = () => {
                   </div>
 
                   {/* 演员位置 */}
-                  {actors.map((actor) => (
-                    <div
-                      key={actor.id}
-                      style={{
-                        position: "absolute",
-                        left: actor.x,
-                        top: actor.y,
-                        transform: "translate(-50%, -50%)",
-                        cursor: isDragging ? "grabbing" : "grab",
-                      }}
-                      onClick={() => handleActorClick(actor)}
-                      onMouseDown={(e) => handleMouseDown(e, actor)}
-                    >
+                  {actors.map((actor) => {
+                    const displayPosition = getActorDisplayPosition(actor);
+                    return (
                       <div
-                        style={{
-                          width: 24,
-                          height: 24,
-                          borderRadius: "50%",
-                          background: actor.color,
-                          color: "#1a1a1a",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: 10,
-                          fontWeight: "bold",
-                          border:
-                            selectedActor?.id === actor.id
-                              ? "2px solid #fff"
-                              : "none",
-                          boxShadow:
-                            selectedActor?.id === actor.id
-                              ? "0 0 8px rgba(168, 192, 144, 0.5)"
-                              : "none",
-                          transition: "all 0.2s ease",
-                        }}
-                      >
-                        {actor.id}
-                      </div>
-                      <div
+                        key={actor.id}
                         style={{
                           position: "absolute",
-                          bottom: -24,
-                          left: "50%",
-                          transform: "translateX(-50%)",
-                          color:
-                            selectedActor?.id === actor.id
-                              ? "#a8c090"
-                              : "#c0c0c0",
-                          fontSize: 10,
-                          whiteSpace: "nowrap",
-                          fontWeight:
-                            selectedActor?.id === actor.id ? "bold" : "normal",
-                          textShadow:
-                            selectedActor?.id === actor.id
-                              ? "0 0 4px rgba(168, 192, 144, 0.5)"
-                              : "none",
+                          left: displayPosition.x,
+                          top: displayPosition.y,
+                          transform: "translate(-50%, -50%)",
+                          cursor: isPreviewMode
+                            ? "default"
+                            : isDragging
+                            ? "grabbing"
+                            : "grab",
+                          pointerEvents: isPreviewMode ? "none" : "auto",
                         }}
+                        onClick={() =>
+                          !isPreviewMode && handleActorClick(actor)
+                        }
+                        onMouseDown={(e) =>
+                          !isPreviewMode && handleMouseDown(e, actor)
+                        }
                       >
-                        {actor.name}
+                        <div
+                          style={{
+                            width: 24,
+                            height: 24,
+                            borderRadius: "50%",
+                            background: actor.color,
+                            color: "#1a1a1a",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            fontSize: 10,
+                            fontWeight: "bold",
+                            border:
+                              selectedActor?.id === actor.id
+                                ? "2px solid #fff"
+                                : "none",
+                            boxShadow:
+                              selectedActor?.id === actor.id
+                                ? "0 0 8px rgba(168, 192, 144, 0.5)"
+                                : "none",
+                            transition: "all 0.2s ease",
+                          }}
+                        >
+                          {actor.id}
+                        </div>
+                        <div
+                          style={{
+                            position: "absolute",
+                            bottom: -24,
+                            left: "50%",
+                            transform: "translateX(-50%)",
+                            color:
+                              selectedActor?.id === actor.id
+                                ? "#a8c090"
+                                : "#c0c0c0",
+                            fontSize: 10,
+                            whiteSpace: "nowrap",
+                            fontWeight:
+                              selectedActor?.id === actor.id
+                                ? "bold"
+                                : "normal",
+                            textShadow:
+                              selectedActor?.id === actor.id
+                                ? "0 0 4px rgba(168, 192, 144, 0.5)"
+                                : "none",
+                          }}
+                        >
+                          {actor.name}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
 
                   {/* 舞台元素 */}
                   {stageElements.map((element) => (
@@ -1951,7 +2174,7 @@ const StageEditor: React.FC = () => {
                 marginBottom: 16,
               }}
             >
-              <div style={{ display: "flex", alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", flex: 1 }}>
                 <Button
                   onClick={togglePlayback}
                   style={{
@@ -1962,11 +2185,82 @@ const StageEditor: React.FC = () => {
                     height: 32,
                     marginRight: 8,
                   }}
-                  icon={<PlayCircleOutlined />}
+                  icon={
+                    isPlaying ? <PauseCircleOutlined /> : <PlayCircleOutlined />
+                  }
                 />
-                <div style={{ color: "#f5f5f5", fontSize: 12 }}>
-                  {currentTime} / {totalTime}
-                </div>
+
+                {isPreviewMode ? (
+                  <div
+                    style={{ display: "flex", alignItems: "center", flex: 1 }}
+                  >
+                    <div
+                      style={{
+                        color: "#f5f5f5",
+                        fontSize: 12,
+                        marginRight: 16,
+                      }}
+                    >
+                      {formatTimeDisplay(previewCurrentTime)} /{" "}
+                      {formatTimeDisplay(samplePreviewData.totalDuration)}
+                    </div>
+
+                    {/* 时间轴拖拽条 */}
+                    <div style={{ flex: 1, marginRight: 16 }}>
+                      <Slider
+                        min={0}
+                        max={samplePreviewData.totalDuration}
+                        step={0.1}
+                        value={previewCurrentTime}
+                        onChange={seekToTime}
+                        tooltip={{
+                          formatter: (value) => formatTimeDisplay(value || 0),
+                        }}
+                        trackStyle={{ backgroundColor: "#a8c090" }}
+                        handleStyle={{
+                          borderColor: "#a8c090",
+                          backgroundColor: "#a8c090",
+                        }}
+                      />
+                    </div>
+
+                    {/* 播放速度控制 */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginRight: 16,
+                      }}
+                    >
+                      <span
+                        style={{
+                          color: "#c0c0c0",
+                          fontSize: 10,
+                          marginRight: 8,
+                        }}
+                      >
+                        速度:
+                      </span>
+                      <Select
+                        value={playbackSpeed}
+                        onChange={setPlaybackSpeed}
+                        size="small"
+                        style={{ width: 60 }}
+                        options={[
+                          { value: 0.25, label: "0.25x" },
+                          { value: 0.5, label: "0.5x" },
+                          { value: 1, label: "1x" },
+                          { value: 1.5, label: "1.5x" },
+                          { value: 2, label: "2x" },
+                        ]}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ color: "#f5f5f5", fontSize: 12 }}>
+                    {currentTime} / {totalTime}
+                  </div>
+                )}
               </div>
               <Button
                 onClick={addKeyframe}
@@ -2157,10 +2451,10 @@ const StageEditor: React.FC = () => {
 
         {/* 右侧属性面板 */}
         <Sider
-          width={280}
+          width={320}
           style={{ background: "#151515", height: "auto", overflow: "visible" }}
         >
-          <div style={{ padding: 24 }}>
+          <div style={{ padding: 16 }}>
             <h3
               style={{
                 fontSize: 14,
@@ -2172,6 +2466,16 @@ const StageEditor: React.FC = () => {
             >
               属性面板
             </h3>
+
+            {/* 台词显示面板 */}
+            <div style={{ marginBottom: 24 }}>
+              <DialoguePanel
+                currentTime={isPreviewMode ? previewCurrentTime : 0}
+                dialogues={samplePreviewData.dialogues}
+                actors={actors}
+                isPreviewMode={isPreviewMode}
+              />
+            </div>
 
             {/* 演员属性 */}
             <div style={{ marginBottom: 24 }}>
