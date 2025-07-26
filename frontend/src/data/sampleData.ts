@@ -28,7 +28,7 @@ export const sampleDialogues: SampleDialogue[] = [
   {
     id: "dialogue_1",
     actorId: 1,
-    content: "欢迎来到我们的舞台表演！今天将为大家带来一场精彩的演出。",
+    content: "欢迎来到我们的舞台表演! Welcome to the Show!!",
     startTime: 2,
     duration: 4,
     emotion: "喜悦",
@@ -37,7 +37,7 @@ export const sampleDialogues: SampleDialogue[] = [
   {
     id: "dialogue_2",
     actorId: 2,
-    content: "是的，我们准备了很久，希望能够带给观众最好的体验。",
+    content: "今天是一场我们特意为小朋友们设计的表演! ",
     startTime: 7,
     duration: 3.5,
     emotion: "平静",
@@ -46,7 +46,7 @@ export const sampleDialogues: SampleDialogue[] = [
   {
     id: "dialogue_3",
     actorId: 3,
-    content: "让我们开始这次奇妙的旅程吧！",
+    content: "在这个故事中，我们将探索友谊与勇气的真谛。",
     startTime: 11,
     duration: 2.5,
     emotion: "激动",
@@ -55,7 +55,7 @@ export const sampleDialogues: SampleDialogue[] = [
   {
     id: "dialogue_4",
     actorId: 1,
-    content: "在这个故事中，我们将探索友谊与勇气的真谛。",
+    content: "带着好奇心去探索这个未知的世界",
     startTime: 15,
     duration: 4,
     emotion: "平静",

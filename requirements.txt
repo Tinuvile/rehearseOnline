@@ -30,7 +30,7 @@ imageio==2.31.5
 imageio-ffmpeg==0.4.9
 
 # FunASR高级功能依赖
-onnxruntime-gpu>=1.16.0  # GPU加速推理（可选，如无GPU可用onnxruntime）
+onnxruntime>=1.15.0  # CPU推理
 zhconv>=1.4.3           # 中文繁简转换
 jieba>=0.42.1           # 中文分词
 pypinyin>=0.48.0        # 拼音转换
@@ -59,4 +59,4 @@ unicodedata2>=15.0.0   # Unicode处理
 
 # 音频格式支持
 pydub>=0.25.1          # 音频格式转换
-pyaudio>=0.2.11        # 音频输入输出（可选）
+# pyaudio>=0.2.11        # 音频输入输出（可选，需要PortAudio库）
