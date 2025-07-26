@@ -335,9 +335,9 @@ const StageEditor: React.FC = () => {
             );
           }
 
-          // 清除localStorage中的数据，避免重复使用
-          localStorage.removeItem("extractedDialogues");
-          localStorage.removeItem("videoAnalysisResult");
+          // 不立即清除localStorage数据，让用户可以多次访问
+          // localStorage.removeItem("extractedDialogues");
+          // localStorage.removeItem("videoAnalysisResult");
         }
       } catch (error) {
         console.error("加载提取的台词数据失败:", error);
@@ -357,6 +357,9 @@ const StageEditor: React.FC = () => {
       }
 
       setDialogues(loadedDialogues);
+      
+      // 调试信息：打印台词数据
+      console.log("舞台编辑器加载的台词数据:", loadedDialogues);
     }
   }, [actors.length]);
 
@@ -801,10 +804,39 @@ const StageEditor: React.FC = () => {
     message.success("已清除所有动态位置点");
   };
 
+  // 清除视频分析数据，回到样例数据
+  const clearVideoData = () => {
+    Modal.confirm({
+      title: "清除视频数据",
+      content: "确定要清除当前的视频分析数据并回到样例数据吗？此操作不可撤销。",
+      okText: "确认清除",
+      cancelText: "取消",
+      onOk: () => {
+        // 清除localStorage中的视频数据
+        localStorage.removeItem("extractedDialogues");
+        localStorage.removeItem("videoAnalysisResult");
+        
+        // 重新加载样例数据
+        const sampleDialogues = samplePreviewData.dialogues.map((dialogue) => ({
+          id: dialogue.id,
+          actorId: dialogue.actorId,
+          content: dialogue.content,
+          startTime: dialogue.startTime,
+          duration: dialogue.duration,
+          emotion: dialogue.emotion,
+          volume: dialogue.volume,
+        }));
+        
+        setDialogues(sampleDialogues);
+        message.success("已清除视频数据，回到样例数据");
+      },
+    });
+  };
+
   // 导出合并后的位置数据
   const exportMergedPositions = () => {
     const mergedData = {
-      dialogues: samplePreviewData.dialogues,
+      dialogues: dialogues,
       actorPositions: [] as SampleActorPosition[],
       totalDuration: samplePreviewData.totalDuration,
       dynamicPositionsCount: dynamicActorPositions.length,
@@ -1930,6 +1962,17 @@ const StageEditor: React.FC = () => {
               >
                 重做
               </Button>
+              {/* 检查是否有视频数据 */}
+              {localStorage.getItem("extractedDialogues") && (
+                <Button
+                  type="text"
+                  onClick={clearVideoData}
+                  style={{ color: "#d08770", fontSize: 12 }}
+                  title="清除当前视频分析数据，回到样例数据"
+                >
+                  清除视频数据
+                </Button>
+              )}
               {!isPreviewMode ? (
                 <Button
                   type="text"
@@ -3020,7 +3063,7 @@ const StageEditor: React.FC = () => {
             <div style={{ marginBottom: 24, minHeight: 280 }}>
               <DialoguePanel
                 currentTime={isPreviewMode ? previewCurrentTime : 0}
-                dialogues={samplePreviewData.dialogues}
+                dialogues={dialogues}
                 actors={actors}
                 isPreviewMode={isPreviewMode}
               />

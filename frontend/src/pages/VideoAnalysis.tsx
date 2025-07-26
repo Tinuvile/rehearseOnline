@@ -121,6 +121,10 @@ const VideoAnalysis: React.FC = () => {
 
   const handleUpload = async (file: File) => {
     try {
+      // 清除之前的视频分析数据
+      localStorage.removeItem("extractedDialogues");
+      localStorage.removeItem("videoAnalysisResult");
+
       // 重置状态
       setUploadProgress(0);
       setAnalysisProgress(0);

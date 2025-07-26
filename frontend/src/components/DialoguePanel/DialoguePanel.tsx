@@ -60,6 +60,9 @@ const DialoguePanel: React.FC<DialoguePanelProps> = ({
   const [currentDialogues, setCurrentDialogues] = useState<Dialogue[]>([]);
   const [upcomingDialogues, setUpcomingDialogues] = useState<Dialogue[]>([]);
 
+  // 调试信息：打印接收到的台词数据
+  console.log("DialoguePanel接收到的台词数据:", dialogues);
+
   // 根据当前时间筛选台词
   useEffect(() => {
     // 当前正在进行的台词
