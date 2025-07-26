@@ -2,18 +2,26 @@
 AI舞台系统后端主入口
 """
 
+import sys
+import os
+from pathlib import Path
+
+# 添加项目根目录到Python路径
+current_dir = Path(__file__).parent
+project_root = current_dir.parent
+sys.path.insert(0, str(project_root))
+
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import uvicorn
-import os
-from pathlib import Path
 
 from backend.api.video_analysis import router as video_router
 from backend.api.stage_management import router as stage_router
 from backend.api.ai_suggestions import router as ai_router
 from backend.api.dialogue_extraction import router as dialogue_router
 from backend.api.ai_analysis import router as ai_analysis_router
+from backend.api.video_3d_to_2d import router as video_3d_to_2d_router
 from backend.core.data_store import InMemoryDataStore
 
 # 创建FastAPI应用
@@ -44,6 +52,7 @@ app.include_router(stage_router, prefix="/api/stage", tags=["舞台管理"])
 app.include_router(ai_router, prefix="/api/ai", tags=["AI建议"])
 app.include_router(dialogue_router, tags=["台词提取"])
 app.include_router(ai_analysis_router, tags=["AI分析"])
+app.include_router(video_3d_to_2d_router, prefix="/api/video-3d-to-2d", tags=["视频3D转2D"])
 
 @app.on_event("startup")
 async def startup_event():

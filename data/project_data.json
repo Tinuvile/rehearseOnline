@@ -7,12 +7,23 @@
       "created_at": "2025-07-26T13:07:05.351420"
     }
   },
-  "videos": {},
+  "videos": {
+    "334b1452-6387-417b-939c-a3bac308c01b": {
+      "id": "334b1452-6387-417b-939c-a3bac308c01b",
+      "filename": "访谈.mp4",
+      "file_path": "uploads\\685a87dd0670443eafbbb36aef7773a8_访谈.mp4",
+      "duration": 122.97,
+      "fps": 30,
+      "resolution": "1280x720",
+      "status": "processed",
+      "created_at": "2025-07-27T02:12:37.503576"
+    }
+  },
   "actors": {},
   "transcripts": {},
   "actor_positions": {},
   "lighting_cues": {},
   "music_cues": {},
   "current_project_id": "9dcc4257-5e61-4d5a-a3a7-0c6b59a6acb7",
-  "saved_at": "2025-07-26T13:07:05.351420"
+  "saved_at": "2025-07-27T02:12:37.568429"
 }

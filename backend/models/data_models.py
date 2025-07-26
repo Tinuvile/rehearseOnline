@@ -159,6 +159,7 @@ class Video:
     resolution: str = "1920x1080"
     status: str = "uploaded"  # uploaded, processing, processed, error
     created_at: str = ""
+    processing_results: Optional[Dict[str, Any]] = None  # 存储各种处理结果
     
     @classmethod
     def create(cls, filename: str, file_path: str):
@@ -166,7 +167,8 @@ class Video:
             id=str(uuid.uuid4()),
             filename=filename,
             file_path=file_path,
-            created_at=datetime.now().isoformat()
+            created_at=datetime.now().isoformat(),
+            processing_results={}
         )
 
 @dataclass
@@ -226,3 +228,98 @@ def dict_to_dataclass(cls, data: Dict[str, Any]):
         
         return cls(**processed_data)
     return data
+
+# 3D转2D相关数据模型
+
+@dataclass
+class StageCorner:
+    """舞台角点"""
+    x: float
+    y: float
+
+@dataclass
+class StageAnnotation:
+    """舞台标注信息"""
+    corners: List[StageCorner]  # 舞台四个角的坐标
+    depth_reference: float  # 参考深度值
+    real_width: float  # 实际舞台宽度（米）
+    real_height: float  # 实际舞台高度（米）
+    
+    @classmethod
+    def create(cls, corners: List[Dict[str, float]], depth_reference: float, 
+               real_width: float, real_height: float):
+        corner_objects = [StageCorner(x=c["x"], y=c["y"]) for c in corners]
+        return cls(
+            corners=corner_objects,
+            depth_reference=depth_reference,
+            real_width=real_width,
+            real_height=real_height
+        )
+
+@dataclass
+class PersonPosition3D:
+    """人员3D位置信息"""
+    frame_number: int
+    timestamp: float
+    person_id: str
+    position_3d: Position3D  # 3D坐标
+    position_2d: Position2D  # 转换后的2D平面坐标
+    confidence: float
+    keypoints: Optional[Dict[str, Dict[str, float]]] = None  # 关键点信息
+    
+    @classmethod
+    def create(cls, frame_number: int, timestamp: float, person_id: str,
+               position_3d: Position3D, position_2d: Position2D, confidence: float,
+               keypoints: Optional[Dict[str, Dict[str, float]]] = None):
+        return cls(
+            frame_number=frame_number,
+            timestamp=timestamp,
+            person_id=person_id,
+            position_3d=position_3d,
+            position_2d=position_2d,
+            confidence=confidence,
+            keypoints=keypoints
+        )
+
+@dataclass
+class DepthInfo:
+    """深度信息"""
+    frame_number: int
+    depth_file_path: str
+    min_depth: float
+    max_depth: float
+    mean_depth: float
+    width: int
+    height: int
+
+@dataclass
+class AlphaPoseResult:
+    """AlphaPose检测结果"""
+    frame_number: int
+    person_id: str
+    bbox: List[float]  # [x, y, width, height]
+    keypoints: List[float]  # 关键点坐标和置信度
+    score: float
+    center_point: Position2D
+
+@dataclass
+class Video3DTo2DResult:
+    """视频3D转2D处理结果"""
+    video_id: str
+    stage_annotation: StageAnnotation
+    positions: List[PersonPosition3D]
+    processing_time: float
+    frame_count: int
+    persons_detected: List[str]  # 检测到的人员ID列表
+    
+    @classmethod
+    def create(cls, video_id: str, stage_annotation: StageAnnotation,
+               positions: List[PersonPosition3D], processing_time: float):
+        return cls(
+            video_id=video_id,
+            stage_annotation=stage_annotation,
+            positions=positions,
+            processing_time=processing_time,
+            frame_count=len(positions),
+            persons_detected=list(set(pos.person_id for pos in positions))
+        )
