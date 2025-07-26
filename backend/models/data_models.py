@@ -47,7 +47,7 @@ class TranscriptSegment:
             confidence=confidence,
             emotion=emotion
         )
-    
+
     def to_dict(self) -> Dict[str, Any]:
         """将TranscriptSegment对象转换为字典"""
         return {

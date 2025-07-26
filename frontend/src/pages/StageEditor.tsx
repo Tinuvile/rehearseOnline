@@ -14,6 +14,7 @@ import {
   ColorPicker,
   Switch,
   Slider,
+  Tooltip,
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import {
@@ -42,6 +43,12 @@ import {
   getDialoguesAtTime,
   type SampleDialogue,
 } from "../data/sampleData";
+import {
+  aiService,
+  type AISuggestion,
+  type AIAnalysisResponse,
+} from "../services/aiService";
+import { stageApi } from "../services/api";
 
 const { Sider, Content } = Layout;
 
@@ -226,6 +233,14 @@ const StageEditor: React.FC = () => {
     { x: number; y: number }[]
   >([]);
 
+  // AI分析相关状态
+  const [aiSuggestions, setAiSuggestions] = useState<AISuggestion[]>([]);
+  const [isLoadingAI, setIsLoadingAI] = useState(false);
+  const [aiAnalysisResult, setAiAnalysisResult] =
+    useState<AIAnalysisResponse | null>(null);
+  const [isAIHealthy, setIsAIHealthy] = useState(true);
+  const [lastAIUpdate, setLastAIUpdate] = useState<number>(0);
+
   // 模态框状态
   const [lightModalVisible, setLightModalVisible] = useState(false);
   const [musicModalVisible, setMusicModalVisible] = useState(false);
@@ -341,6 +356,258 @@ const StageEditor: React.FC = () => {
     }
   }, [actors.length]);
 
+  // AI相关函数
+  const checkAIHealth = useCallback(async () => {
+    try {
+      const healthy = await aiService.checkHealth();
+      setIsAIHealthy(healthy);
+      return healthy;
+    } catch (error) {
+      console.error("AI健康检查失败:", error);
+      setIsAIHealthy(false);
+      return false;
+    }
+  }, []);
+
+  const updateAISuggestions = useCallback(
+    async (forceFullAnalysis = false) => {
+      // 避免频繁调用，限制更新频率（最多每5秒一次）
+      const now = Date.now();
+      if (!forceFullAnalysis && now - lastAIUpdate < 5000) {
+        return;
+      }
+
+      try {
+        setIsLoadingAI(true);
+        setLastAIUpdate(now);
+
+        // 构建舞台数据
+        const stageData = aiService.buildStageData(
+          actors,
+          dialogues,
+          movements,
+          lights,
+          stageElements,
+          areas
+        );
+
+        if (forceFullAnalysis) {
+          // 完整AI分析（调用Kimi API）
+          const analysisResult = await aiService.getFullAnalysis(stageData);
+          setAiAnalysisResult(analysisResult);
+
+          if (
+            analysisResult.success &&
+            analysisResult.analysis?.priority_suggestions
+          ) {
+            const enhancedSuggestions = aiService.addIconsToSuggestions(
+              analysisResult.analysis.priority_suggestions
+            );
+            setAiSuggestions(enhancedSuggestions);
+            message.success(
+              `AI分析完成！获得${enhancedSuggestions.length}条优化建议`
+            );
+          } else if (analysisResult.error) {
+            message.error(`AI分析失败: ${analysisResult.error}`);
+            // 使用快速建议作为备用
+            const quickSuggestions = await aiService.getQuickSuggestions(
+              stageData
+            );
+            setAiSuggestions(aiService.addIconsToSuggestions(quickSuggestions));
+          }
+        } else {
+          // 快速建议（基于规则）
+          const quickSuggestions = await aiService.getQuickSuggestions(
+            stageData
+          );
+          setAiSuggestions(aiService.addIconsToSuggestions(quickSuggestions));
+        }
+      } catch (error) {
+        console.error("更新AI建议失败:", error);
+        message.error("获取AI建议失败，请稍后重试");
+      } finally {
+        setIsLoadingAI(false);
+      }
+    },
+    [actors, dialogues, movements, lights, stageElements, areas, lastAIUpdate]
+  );
+
+  const handleAIOptimization = useCallback(
+    async (type: "quick" | "full" = "quick") => {
+      if (!isAIHealthy) {
+        const healthy = await checkAIHealth();
+        if (!healthy) {
+          message.warning("AI服务暂时不可用，请检查网络连接");
+          return;
+        }
+      }
+
+      if (type === "full") {
+        Modal.confirm({
+          title: "完整AI分析",
+          content: "将调用AI进行深度分析，可能需要10-30秒时间，是否继续？",
+          okText: "开始分析",
+          cancelText: "取消",
+          onOk: () => updateAISuggestions(true),
+        });
+      } else {
+        await updateAISuggestions(false);
+      }
+    },
+    [isAIHealthy, checkAIHealth, updateAISuggestions]
+  );
+
+  const applyAISuggestion = useCallback((suggestion: AISuggestion) => {
+    message.info(`正在应用建议: ${suggestion.type}`);
+    // 这里可以根据建议类型实现具体的应用逻辑
+    switch (suggestion.type) {
+      case "路径优化":
+        message.success("路径优化建议已应用，请检查演员移动路径");
+        break;
+      case "灯光优化":
+        message.success("灯光优化建议已应用，请查看灯光设置");
+        break;
+      case "表演节奏":
+        message.success("表演节奏建议已应用，请检查台词时长");
+        break;
+      default:
+        message.info(`${suggestion.type}建议需要手动处理`);
+    }
+  }, []);
+
+  // 初始化AI健康检查和获取建议
+  useEffect(() => {
+    if (actors.length > 0 && dialogues.length > 0) {
+      checkAIHealth();
+      updateAISuggestions(false); // 获取快速建议
+    }
+  }, [actors.length, dialogues.length, checkAIHealth, updateAISuggestions]);
+
+  // 监听舞台数据变化，自动更新快速建议
+  useEffect(() => {
+    if (actors.length > 0) {
+      const timer = setTimeout(() => {
+        updateAISuggestions(false); // 延迟更新，避免频繁调用
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [actors, movements, lights, stageElements, areas, updateAISuggestions]);
+
+  // 生成时间轴片段的tooltip内容
+  const generateTooltipContent = (segment: TimelineSegment) => {
+    const formatTime = (seconds: number) => {
+      const minutes = Math.floor(seconds / 60);
+      const secs = Math.floor(seconds % 60);
+      return `${minutes.toString().padStart(2, "0")}:${secs
+        .toString()
+        .padStart(2, "0")}`;
+    };
+
+    const startTime = segment.start / 10; // 像素转时间
+    const duration = segment.width / 10;
+    const endTime = startTime + duration;
+
+    const timeInfo = `时间: ${formatTime(startTime)} - ${formatTime(
+      endTime
+    )} (${duration}秒)`;
+
+    switch (segment.type) {
+      case "dialogue":
+        const dialogue = segment.data as Dialogue;
+        return (
+          <div style={{ maxWidth: 250 }}>
+            <div style={{ fontWeight: "bold", marginBottom: 4 }}>
+              💬 台词详情
+            </div>
+            <div style={{ marginBottom: 2 }}>内容: {dialogue.content}</div>
+            <div style={{ marginBottom: 2 }}>{timeInfo}</div>
+            {dialogue.emotion && (
+              <div style={{ marginBottom: 2 }}>情感: {dialogue.emotion}</div>
+            )}
+            {dialogue.volume && <div>音量: {dialogue.volume}%</div>}
+            <div style={{ marginTop: 8, fontSize: 12, opacity: 0.8 }}>
+              点击编辑台词
+            </div>
+          </div>
+        );
+
+      case "music":
+        const music = segment.data as MusicTrack;
+        return (
+          <div style={{ maxWidth: 250 }}>
+            <div style={{ fontWeight: "bold", marginBottom: 4 }}>
+              🎵 音乐详情
+            </div>
+            <div style={{ marginBottom: 2 }}>名称: {music.name}</div>
+            <div style={{ marginBottom: 2 }}>{timeInfo}</div>
+            <div style={{ marginBottom: 2 }}>音量: {music.volume}%</div>
+            {music.fadeIn > 0 && (
+              <div style={{ marginBottom: 2 }}>淡入: {music.fadeIn}秒</div>
+            )}
+            {music.fadeOut > 0 && (
+              <div style={{ marginBottom: 2 }}>淡出: {music.fadeOut}秒</div>
+            )}
+            <div style={{ marginTop: 8, fontSize: 12, opacity: 0.8 }}>
+              点击编辑音乐
+            </div>
+          </div>
+        );
+
+      case "light":
+        const light = segment.data as Light;
+        return (
+          <div style={{ maxWidth: 250 }}>
+            <div style={{ fontWeight: "bold", marginBottom: 4 }}>
+              💡 灯光详情
+            </div>
+            <div style={{ marginBottom: 2 }}>名称: {light.name}</div>
+            <div style={{ marginBottom: 2 }}>{timeInfo}</div>
+            <div style={{ marginBottom: 2 }}>类型: {light.type}</div>
+            <div style={{ marginBottom: 2 }}>
+              位置: ({light.x}, {light.y})
+            </div>
+            <div style={{ marginBottom: 2 }}>亮度: {light.intensity}%</div>
+            <div style={{ marginBottom: 2 }}>光束角度: {light.beamAngle}°</div>
+            <div style={{ marginTop: 8, fontSize: 12, opacity: 0.8 }}>
+              点击编辑灯光
+            </div>
+          </div>
+        );
+
+      case "movement":
+        const movement = segment.data as Movement;
+        return (
+          <div style={{ maxWidth: 250 }}>
+            <div style={{ fontWeight: "bold", marginBottom: 4 }}>
+              🚶‍♂️ 移动详情
+            </div>
+            <div style={{ marginBottom: 2 }}>名称: {movement.name}</div>
+            <div style={{ marginBottom: 2 }}>{timeInfo}</div>
+            <div style={{ marginBottom: 2 }}>路径类型: {movement.pathType}</div>
+            <div style={{ marginBottom: 2 }}>速度: {movement.speed}x</div>
+            <div style={{ marginBottom: 2 }}>
+              路径点数: {movement.path?.length || 0}
+            </div>
+            <div style={{ marginTop: 8, fontSize: 12, opacity: 0.8 }}>
+              点击编辑移动
+            </div>
+          </div>
+        );
+
+      default:
+        return (
+          <div>
+            <div style={{ fontWeight: "bold", marginBottom: 4 }}>元素详情</div>
+            <div>{timeInfo}</div>
+            <div style={{ marginTop: 8, fontSize: 12, opacity: 0.8 }}>
+              点击查看详情
+            </div>
+          </div>
+        );
+    }
+  };
+
   // 动态生成时间轴轨道
   const generateTimelineTracks = (): TimelineTrack[] => {
     const tracks: TimelineTrack[] = [];
@@ -356,10 +623,7 @@ const StageEditor: React.FC = () => {
       actorDialogues.forEach((dialogue) => {
         segments.push({
           id: dialogue.id,
-          label:
-            dialogue.content.length > 10
-              ? dialogue.content.substring(0, 10) + "..."
-              : dialogue.content,
+          label: "台词",
           start: dialogue.startTime * 10, // 时间转像素
           width: dialogue.duration * 10,
           color: actor.color,
@@ -372,7 +636,7 @@ const StageEditor: React.FC = () => {
       actorMovements.forEach((movement) => {
         segments.push({
           id: movement.id,
-          label: movement.name,
+          label: "移动",
           start: movement.startTime * 10,
           width: movement.duration * 10,
           color: `${actor.color}88`, // 半透明显示移动
@@ -392,7 +656,7 @@ const StageEditor: React.FC = () => {
     if (musicTracks.length > 0) {
       const musicSegments = musicTracks.map((music) => ({
         id: music.id,
-        label: music.name,
+        label: "音乐",
         start: music.startTime * 10,
         width: music.duration * 10,
         color: "#81a1c1",
@@ -411,7 +675,7 @@ const StageEditor: React.FC = () => {
     if (lights.length > 0) {
       const lightSegments = lights.map((light) => ({
         id: light.id,
-        label: light.name,
+        label: "灯光",
         start: light.startTime * 10,
         width: light.duration * 10,
         color: "#e6b17a",
@@ -676,33 +940,11 @@ const StageEditor: React.FC = () => {
     },
   ];
 
-  const aiSuggestions = [
-    {
-      id: 1,
-      type: "路径优化",
-      description:
-        "主角当前移动路径可能与配角A产生交叉冲突，建议调整路径或时间点。",
-      icon: <BulbOutlined />,
-    },
-    {
-      id: 2,
-      type: "灯光匹配",
-      description:
-        "根据当前场景情绪，建议在01:30处添加蓝色追光灯效果，强调主角情绪变化。",
-      icon: <BulbOutlined />,
-    },
-    {
-      id: 3,
-      type: "表演节奏",
-      description:
-        "当前场景节奏较慢，建议缩短配角B的台词时长，增加舞台动态感。",
-      icon: <BulbOutlined />,
-    },
-  ];
-
   // 演员管理功能
   const handleActorClick = (actor: Actor) => {
+    console.log("点击演员:", actor.name, "ID:", actor.id);
     setSelectedActor(actor);
+    message.success(`已选中演员: ${actor.name}`);
   };
 
   const addActor = () => {
@@ -734,14 +976,30 @@ const StageEditor: React.FC = () => {
     message.success("删除演员成功！");
   };
 
-  const updateActorPosition = (actorId: number, x: number, y: number) => {
+  const updateActorPosition = async (actorId: number, x: number, y: number) => {
     const actor = actors.find((a) => a.id === actorId);
+
+    // 更新本地状态
     setActors(
       actors.map((actor) => (actor.id === actorId ? { ...actor, x, y } : actor))
     );
-    // 只在拖拽结束时保存历史，避免频繁保存
+
+    // 只在拖拽结束时保存历史和同步后台，避免频繁保存
     if (!isDragging && actor) {
       saveHistory("move_actor", `移动演员: ${actor.name}`);
+
+      // 同步数据到后台
+      try {
+        await stageApi.updateActorPosition(
+          actorId.toString(),
+          { x, y },
+          Date.now() // 使用当前时间戳
+        );
+        console.log(`演员位置已同步到后台: ${actor.name} (${x}, ${y})`);
+      } catch (error) {
+        console.error("同步演员位置到后台失败:", error);
+        message.warning("演员位置保存失败，请检查网络连接");
+      }
     }
   };
 
@@ -811,10 +1069,16 @@ const StageEditor: React.FC = () => {
   );
 
   const handleMouseUp = useCallback(() => {
+    if (isDragging && selectedActor) {
+      console.log(
+        `演员 ${selectedActor.name} 拖拽结束，位置: (${selectedActor.x}, ${selectedActor.y})`
+      );
+      message.info(`${selectedActor.name} 位置已更新`);
+    }
     setIsDragging(false);
     setIsDraggingElement(false);
     setIsDraggingLight(false);
-  }, []);
+  }, [isDragging, selectedActor]);
 
   // 舞台元素拖拽处理
   const handleElementMouseDown = useCallback(
@@ -1357,21 +1621,46 @@ const StageEditor: React.FC = () => {
             ))}
 
             <div style={{ marginTop: "auto" }}>
-              <Button
-                type="primary"
-                icon={<ThunderboltOutlined />}
-                style={{
-                  background: "#a8c090",
-                  borderColor: "#a8c090",
-                  color: "#1a1a1a",
-                  width: "100%",
-                  fontSize: 12,
-                  height: "auto",
-                  padding: "8px 12px",
-                }}
-              >
-                AI优化建议
-              </Button>
+              <div style={{ marginBottom: 8, display: "flex", gap: 4 }}>
+                <Button
+                  type="primary"
+                  icon={<ThunderboltOutlined />}
+                  loading={isLoadingAI}
+                  onClick={() => handleAIOptimization("quick")}
+                  style={{
+                    background: isAIHealthy ? "#a8c090" : "#d08770",
+                    borderColor: isAIHealthy ? "#a8c090" : "#d08770",
+                    color: "#1a1a1a",
+                    flex: 1,
+                    fontSize: 10,
+                    height: "auto",
+                    padding: "6px 8px",
+                  }}
+                >
+                  快速建议
+                </Button>
+                <Button
+                  type="primary"
+                  icon={<BulbOutlined />}
+                  loading={isLoadingAI}
+                  onClick={() => handleAIOptimization("full")}
+                  disabled={!isAIHealthy}
+                  style={{
+                    background: isAIHealthy ? "#81a1c1" : "#555",
+                    borderColor: isAIHealthy ? "#81a1c1" : "#555",
+                    color: isAIHealthy ? "#1a1a1a" : "#888",
+                    flex: 1,
+                    fontSize: 10,
+                    height: "auto",
+                    padding: "6px 8px",
+                  }}
+                >
+                  AI分析
+                </Button>
+              </div>
+              <div style={{ textAlign: "center", fontSize: 8, color: "#888" }}>
+                {isAIHealthy ? "🟢 AI服务正常" : "🔴 AI服务异常"}
+              </div>
             </div>
           </div>
         </Sider>
@@ -1395,6 +1684,24 @@ const StageEditor: React.FC = () => {
               alignItems: "center",
             }}
           >
+            {/* 状态显示区域 */}
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              <div style={{ fontSize: 12, color: "#888" }}>
+                演员总数: {actors.length}
+              </div>
+              {selectedActor && (
+                <div
+                  style={{ fontSize: 12, color: "#a8c090", fontWeight: "bold" }}
+                >
+                  已选中: {selectedActor.name} (ID: {selectedActor.id})
+                </div>
+              )}
+              {!selectedActor && (
+                <div style={{ fontSize: 12, color: "#d08770" }}>
+                  未选中演员 - 点击演员进行选择
+                </div>
+              )}
+            </div>
             <h3
               style={{
                 color: "#f5f5f5",
@@ -1854,6 +2161,7 @@ const StageEditor: React.FC = () => {
                             ? "grabbing"
                             : "grab",
                           pointerEvents: isPreviewMode ? "none" : "auto",
+                          zIndex: 10, // 确保演员在最上层，可以被交互
                         }}
                         onClick={() =>
                           !isPreviewMode && handleActorClick(actor)
@@ -2364,82 +2672,88 @@ const StageEditor: React.FC = () => {
                       }}
                     >
                       {track.segments.map((segment: TimelineSegment) => (
-                        <div
+                        <Tooltip
                           key={segment.id}
-                          onClick={() => {
-                            // 处理点击事件
-                            if (segment.type === "dialogue") {
-                              editDialogue(segment.data);
-                            } else if (segment.type === "music") {
-                              setSelectedMusic(segment.data);
-                              musicForm.setFieldsValue(segment.data);
-                              setMusicModalVisible(true);
-                            } else if (segment.type === "light") {
-                              setSelectedLight(segment.data);
-                              lightForm.setFieldsValue(segment.data);
-                              setLightModalVisible(true);
-                            } else if (segment.type === "movement") {
-                              setSelectedMovement(segment.data);
-                              movementForm.setFieldsValue(segment.data);
-                              setMovementModalVisible(true);
-                            }
-                          }}
-                          style={{
-                            position: "absolute",
-                            top: 5,
-                            left: segment.start,
-                            width: segment.width,
-                            height: 20,
-                            background: "#1f1f1f",
-                            borderLeft: `2px solid ${segment.color}`,
-                            display: "flex",
-                            alignItems: "center",
-                            paddingLeft: 4,
-                            cursor: "pointer",
-                            transition: "all 0.2s ease",
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = "#2a2a2a";
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = "#1f1f1f";
-                          }}
+                          title={generateTooltipContent(segment)}
+                          placement="top"
+                          overlayStyle={{ maxWidth: 300 }}
                         >
-                          <span style={{ color: "#f5f5f5", fontSize: 10 }}>
-                            {segment.label}
-                          </span>
-                          {/* 删除按钮 */}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
+                          <div
+                            onClick={() => {
+                              // 处理点击事件
                               if (segment.type === "dialogue") {
-                                deleteDialogue(segment.id);
+                                editDialogue(segment.data);
                               } else if (segment.type === "music") {
-                                deleteMusic(segment.id);
+                                setSelectedMusic(segment.data);
+                                musicForm.setFieldsValue(segment.data);
+                                setMusicModalVisible(true);
                               } else if (segment.type === "light") {
-                                deleteLight(segment.id);
+                                setSelectedLight(segment.data);
+                                lightForm.setFieldsValue(segment.data);
+                                setLightModalVisible(true);
+                              } else if (segment.type === "movement") {
+                                setSelectedMovement(segment.data);
+                                movementForm.setFieldsValue(segment.data);
+                                setMovementModalVisible(true);
                               }
                             }}
                             style={{
                               position: "absolute",
-                              right: 2,
-                              top: 2,
-                              width: 16,
-                              height: 16,
-                              background: "#ff4d4f",
-                              border: "none",
-                              borderRadius: "50%",
-                              color: "#fff",
-                              fontSize: 8,
-                              cursor: "pointer",
+                              top: 5,
+                              left: segment.start,
+                              width: segment.width,
+                              height: 20,
+                              background: "#1f1f1f",
+                              borderLeft: `2px solid ${segment.color}`,
                               display: "flex",
                               alignItems: "center",
-                              justifyContent: "center",
+                              paddingLeft: 4,
+                              cursor: "pointer",
+                              transition: "all 0.2s ease",
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.background = "#2a2a2a";
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = "#1f1f1f";
                             }}
                           >
-                            ×
-                          </button>
-                        </div>
+                            <span style={{ color: "#f5f5f5", fontSize: 10 }}>
+                              {segment.label}
+                            </span>
+                            {/* 删除按钮 */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (segment.type === "dialogue") {
+                                  deleteDialogue(segment.id);
+                                } else if (segment.type === "music") {
+                                  deleteMusic(segment.id);
+                                } else if (segment.type === "light") {
+                                  deleteLight(segment.id);
+                                }
+                              }}
+                              style={{
+                                position: "absolute",
+                                right: 2,
+                                top: 2,
+                                width: 16,
+                                height: 16,
+                                background: "#ff4d4f",
+                                border: "none",
+                                borderRadius: "50%",
+                                color: "#fff",
+                                fontSize: 8,
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        </Tooltip>
                       ))}
                     </div>
                   )
@@ -2477,6 +2791,149 @@ const StageEditor: React.FC = () => {
               />
             </div>
 
+            {/* 演员列表 */}
+            <div style={{ marginBottom: 24 }}>
+              <h4
+                style={{
+                  color: "#c0c0c0",
+                  fontSize: 12,
+                  marginBottom: 12,
+                  margin: "0 0 12px 0",
+                }}
+              >
+                演员列表 ({actors.length})
+              </h4>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 8,
+                  marginBottom: 16,
+                }}
+              >
+                {actors.map((actor) => (
+                  <div
+                    key={actor.id}
+                    onClick={() => handleActorClick(actor)}
+                    style={{
+                      padding: "8px 12px",
+                      background:
+                        selectedActor?.id === actor.id ? "#2a2a2a" : "#1f1f1f",
+                      border:
+                        selectedActor?.id === actor.id
+                          ? `1px solid ${actor.color}`
+                          : "1px solid #333",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 8,
+                      transition: "all 0.2s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      if (selectedActor?.id !== actor.id) {
+                        e.currentTarget.style.background = "#252525";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (selectedActor?.id !== actor.id) {
+                        e.currentTarget.style.background = "#1f1f1f";
+                      }
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 16,
+                        height: 16,
+                        borderRadius: "50%",
+                        background: actor.color,
+                        color: "#1a1a1a",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 8,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {actor.id}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div
+                        style={{
+                          color: "#f5f5f5",
+                          fontSize: 11,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {actor.name}
+                      </div>
+                      <div style={{ color: "#888", fontSize: 9 }}>
+                        {actor.role} • ({Math.round(actor.x)},{" "}
+                        {Math.round(actor.y)})
+                      </div>
+                    </div>
+                    <div
+                      style={{ display: "flex", alignItems: "center", gap: 4 }}
+                    >
+                      {selectedActor?.id === actor.id && (
+                        <div style={{ color: actor.color, fontSize: 10 }}>
+                          ✓
+                        </div>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          Modal.confirm({
+                            title: "删除演员",
+                            content: `确定要删除演员"${actor.name}"吗？`,
+                            okText: "删除",
+                            cancelText: "取消",
+                            okType: "danger",
+                            onOk: () => deleteActor(actor.id),
+                          });
+                        }}
+                        style={{
+                          width: 16,
+                          height: 16,
+                          background: "transparent",
+                          border: "none",
+                          color: "#888",
+                          cursor: "pointer",
+                          fontSize: 10,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          borderRadius: "2px",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = "#ff4d4f";
+                          e.currentTarget.style.color = "#fff";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = "transparent";
+                          e.currentTarget.style.color = "#888";
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {actors.length === 0 && (
+                  <div
+                    style={{
+                      textAlign: "center",
+                      padding: "20px",
+                      color: "#888",
+                      fontSize: 10,
+                    }}
+                  >
+                    暂无演员，点击左侧"添加演员"按钮创建
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* 演员属性 */}
             <div style={{ marginBottom: 24 }}>
               <h4
@@ -2487,7 +2944,7 @@ const StageEditor: React.FC = () => {
                   margin: "0 0 12px 0",
                 }}
               >
-                演员属性
+                演员属性 {selectedActor && `- ${selectedActor.name}`}
               </h4>
               <div
                 style={{ display: "flex", flexDirection: "column", gap: 12 }}
@@ -2983,74 +3440,154 @@ const StageEditor: React.FC = () => {
                   fontSize: 12,
                   marginBottom: 12,
                   margin: "0 0 12px 0",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
                 }}
               >
                 AI建议
+                {isLoadingAI && (
+                  <span style={{ fontSize: 10, color: "#a8c090" }}>
+                    分析中...
+                  </span>
+                )}
               </h4>
-              {aiSuggestions.map((suggestion) => (
+
+              {aiSuggestions.length === 0 ? (
                 <Card
-                  key={suggestion.id}
                   style={{
                     background: "#1f1f1f",
-                    border: "none",
-                    borderLeft: "2px solid #a8c090",
+                    border: "1px solid #2a2a2a",
                     marginBottom: 12,
-                    padding: "16px",
+                    textAlign: "center",
+                    padding: "20px",
                   }}
                 >
-                  <div
+                  <p style={{ color: "#888", fontSize: 10, margin: 0 }}>
+                    {isLoadingAI
+                      ? "正在分析舞台数据..."
+                      : "暂无AI建议，点击上方按钮获取建议"}
+                  </p>
+                </Card>
+              ) : (
+                aiSuggestions.map((suggestion, index) => (
+                  <Card
+                    key={suggestion.id || index}
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      marginBottom: 8,
+                      background: "#1f1f1f",
+                      border: "none",
+                      borderLeft: `3px solid ${aiService.getPriorityColor(
+                        suggestion.priority
+                      )}`,
+                      marginBottom: 12,
+                      padding: "12px",
                     }}
                   >
-                    <span
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: 8,
+                      }}
+                    >
+                      <span
+                        style={{
+                          marginRight: 8,
+                          fontSize: 14,
+                        }}
+                      >
+                        {suggestion.icon ||
+                          aiService.getIconForSuggestionType(suggestion.type)}
+                      </span>
+                      <h5
+                        style={{
+                          fontSize: 12,
+                          fontWeight: 500,
+                          color: "#f5f5f5",
+                          margin: 0,
+                          flex: 1,
+                        }}
+                      >
+                        {suggestion.type}
+                      </h5>
+                      <span
+                        style={{
+                          fontSize: 8,
+                          padding: "2px 6px",
+                          borderRadius: "4px",
+                          background: aiService.getPriorityColor(
+                            suggestion.priority
+                          ),
+                          color: "#fff",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {suggestion.priority}
+                      </span>
+                    </div>
+                    <p
+                      style={{
+                        color: "#c0c0c0",
+                        fontSize: 10,
+                        marginBottom: 8,
+                        margin: "0 0 8px 0",
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      {suggestion.description}
+                    </p>
+                    {suggestion.specific_action && (
+                      <p
+                        style={{
+                          color: "#a8c090",
+                          fontSize: 9,
+                          marginBottom: 8,
+                          margin: "0 0 8px 0",
+                          fontStyle: "italic",
+                        }}
+                      >
+                        💡 {suggestion.specific_action}
+                      </p>
+                    )}
+                    {suggestion.time_range && (
+                      <p
+                        style={{
+                          color: "#81a1c1",
+                          fontSize: 9,
+                          marginBottom: 8,
+                          margin: "0 0 8px 0",
+                        }}
+                      >
+                        ⏱️ {aiService.formatTimeRange(suggestion.time_range)}
+                      </p>
+                    )}
+                    {suggestion.affected_actors &&
+                      suggestion.affected_actors.length > 0 && (
+                        <p
+                          style={{
+                            color: "#e6b17a",
+                            fontSize: 9,
+                            marginBottom: 8,
+                            margin: "0 0 8px 0",
+                          }}
+                        >
+                          👥 涉及演员: {suggestion.affected_actors.join(", ")}
+                        </p>
+                      )}
+                    <Button
+                      type="link"
+                      onClick={() => applyAISuggestion(suggestion)}
                       style={{
                         color: "#a8c090",
-                        marginRight: 8,
-                        fontSize: 14,
+                        fontSize: 10,
+                        padding: 0,
                       }}
                     >
-                      {suggestion.icon}
-                    </span>
-                    <h5
-                      style={{
-                        fontSize: 12,
-                        fontWeight: 500,
-                        color: "#f5f5f5",
-                        margin: 0,
-                      }}
-                    >
-                      {suggestion.type}
-                    </h5>
-                  </div>
-                  <p
-                    style={{
-                      color: "#c0c0c0",
-                      fontSize: 10,
-                      marginBottom: 8,
-                      margin: "0 0 8px 0",
-                    }}
-                  >
-                    {suggestion.description}
-                  </p>
-                  <Button
-                    type="link"
-                    onClick={() => {
-                      message.success(`已应用 ${suggestion.type} 建议`);
-                      // 这里可以添加具体的应用逻辑
-                    }}
-                    style={{
-                      color: "#a8c090",
-                      fontSize: 10,
-                      padding: 0,
-                    }}
-                  >
-                    应用建议
-                  </Button>
-                </Card>
-              ))}
+                      应用建议
+                    </Button>
+                  </Card>
+                ))
+              )}
             </div>
           </div>
         </Sider>

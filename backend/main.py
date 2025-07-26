@@ -13,6 +13,7 @@ from backend.api.video_analysis import router as video_router
 from backend.api.stage_management import router as stage_router
 from backend.api.ai_suggestions import router as ai_router
 from backend.api.dialogue_extraction import router as dialogue_router
+from backend.api.ai_analysis import router as ai_analysis_router
 from backend.core.data_store import InMemoryDataStore
 
 # 创建FastAPI应用
@@ -42,6 +43,7 @@ app.include_router(video_router, prefix="/api/video", tags=["视频分析"])
 app.include_router(stage_router, prefix="/api/stage", tags=["舞台管理"])
 app.include_router(ai_router, prefix="/api/ai", tags=["AI建议"])
 app.include_router(dialogue_router, tags=["台词提取"])
+app.include_router(ai_analysis_router, tags=["AI分析"])
 
 @app.on_event("startup")
 async def startup_event():
