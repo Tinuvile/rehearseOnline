@@ -14,19 +14,6 @@ rehearseOnline是一个智能舞台管理平台，结合AI技术与现代Web开�
 - **实时预览**：基于时间轴的同步元素播放
 - **多语言支持**：支持中文和英文语音识别
 
-## 技术栈
-
-**后端**
-- FastAPI (Python Web框架)
-- FunASR (语音识别)
-- Kimi API (AI分析)
-- MoviePy (视频处理)
-
-**前端**
-- React + TypeScript
-- Ant Design (UI组件库)
-- Canvas API (舞台渲染)
-
 ## 项目结构
 
 ```
